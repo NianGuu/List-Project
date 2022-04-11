@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<windows.h>
+#include<time.h>
 
 #define ERR_SKILL_LIST_EXCEED -1	//技能表越界
 
@@ -11,20 +12,20 @@
 
 /*技能结构体定义*/
 typedef struct {
-	char name[nameLength] = {};		//技能名称
-	int atk = 0;						//技能伤害
+	char name[nameLength];		//技能名称
+	int atk;						//技能伤害
 }Skill;
 /*技能表顺序表定义*/
 typedef struct {
 	Skill data[skillNum];			//技能表中所含技能数组
-	int length = 0;					//技能表长度
+	int length;					//技能表长度
 }SkillList;
 /*实体结构体定义*/
 typedef struct {
-	char name[nameLength] = {};		//实体名称
-	int HP = 0;						//实体生命值
+	char name[nameLength];		//实体名称
+	int HP;						//实体生命值
 	SkillList SkillList;			//实体所带技能表
-	int i = 0;						//实体类型 
+	int i;						//实体类型 
 }Entity;
 
 void UI_fight(Entity);											/*战斗界面UI*/
@@ -98,6 +99,7 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 void UI_fight(Entity player) {
 head:
 	system("CLS");
+	srand((unsigned)time(NULL));
 	int i = rand() % 3 + 1;						//随机生成怪物类型
 	char iname[nameLength];
 	switch (i) {
@@ -110,8 +112,9 @@ head:
 	Entity mob;
 	setEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
 	for (int i = 4;i;i--) {						//随机构建怪物技能表
-		int a = 1 + rand() % skillLength;
-		updata(&mob.SkillList, i, catchSkill(a));
+		srand((unsigned)time(NULL));
+		int a = 1+rand() % (skillLength-1);
+		updata(&mob.SkillList, i-1, catchSkill(a));
 	}
 	printf("是否开始战斗？\n");
 	printf("Y/N\n");
@@ -136,26 +139,40 @@ int UI_fighting(Entity player, Entity mob) {
 	putchar(10);
 	int i = 0;
 	while (player.HP > 0 && mob.HP > 0) {
-		i++;												//回合计数器
+		i++;//回合计数器
 		printf("***********第%d回合************\n", i);
+		Sleep(500);
 		printf("%s的生命值剩余%d\n", player.name, player.HP);
+		Sleep(500);
 		printf("%s的生命值剩余%d\n", mob.name, mob.HP);
+		Sleep(500);
 		putchar(10);
 		printf("你要做什么？\n");
 		for (int i = 0;i < skillNum;i++) {
-			printf("%d.%s", i + 1, player.SkillList.data[i].name);
+			printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
 		}
 		int choose;
 		scanf_s("%d", &choose);								//控制台输入玩家释放的技能
+		while (getchar() != '\n');
+		choose:
 		if (i >= 1 && i < skillNum) {
 			mob.HP -= player.SkillList.data[i - 1].atk;
-			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d", player.name, player.SkillList.data[i - 1].name, mob.name, player.SkillList.data[i - 1].atk, mob.name, mob.HP);
+			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[i - 1].name, mob.name, player.SkillList.data[i - 1].atk, mob.name, mob.HP);
+			Sleep(500);
+		}
+		else {
+			printf("请输入正确的选项！");
+			goto choose;
 		}
 		if (mob.HP <= 0)break;
+		srand((unsigned)time(NULL));
 		choose = rand() % skillNum;							//随机数决定敌人释放的技能
+		printf("%d", choose);
 		player.HP -= mob.SkillList.data[choose].atk;
-		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
+		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
+		Sleep(500);
 		if (player.HP <= 0)break;
+		Sleep(500);
 	}
 	printf("战斗结束！\n");
 	if (player.HP <= 0) {
