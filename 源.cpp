@@ -59,6 +59,7 @@ int main() {
 	while (true) {
 		system("CLS");
 		puts(player.name);
+		printf("等级：%d\n",difficulty);
 		printf("请输入你的操作：\n");
 		printf("*************************\n");
 		printf("1.战斗\n");
@@ -89,7 +90,7 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->HP = hp;
 	entity->i = i;
 	InitList(&entity->SkillList);
-	updata(&entity->SkillList, 0, skill_Null);
+	updata(&entity->SkillList, 0, skill_Two);
 	updata(&entity->SkillList, 1, skill_Null);
 	updata(&entity->SkillList, 2, skill_Null);
 	updata(&entity->SkillList, 3, skill_Null);
@@ -138,6 +139,7 @@ int UI_fighting(Entity player, Entity mob) {
 	system("CLS");
 	putchar(10);
 	int i = 0;
+	int choose;
 	while (player.HP > 0 && mob.HP > 0) {
 		i++;//回合计数器
 		printf("***********第%d回合************\n", i);
@@ -151,19 +153,18 @@ int UI_fighting(Entity player, Entity mob) {
 		for (int i = 0;i < skillNum;i++) {
 			printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
 		}
-		int choose;
-		scanf_s("%d", &choose);								//控制台输入玩家释放的技能
-		while (getchar() != '\n');
-		choose:
-		if (i >= 1 && i < skillNum) {
-			mob.HP -= player.SkillList.data[i - 1].atk;
-			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[i - 1].name, mob.name, player.SkillList.data[i - 1].atk, mob.name, mob.HP);
-			Sleep(500);
+		while (true) {
+			scanf_s("%d", &choose);						//控制台输入玩家释放的技能
+			while (getchar() != '\n');
+			if (choose >= 1 && choose <= skillNum) {
+				break;
+			}
+			else
+				printf("请输入正确的选项！");
 		}
-		else {
-			printf("请输入正确的选项！");
-			goto choose;
-		}
+		mob.HP -= player.SkillList.data[choose - 1].atk;
+		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[choose - 1].name, mob.name, player.SkillList.data[choose - 1].atk, mob.name, mob.HP);
+		Sleep(500);
 		if (mob.HP <= 0)break;
 		srand((unsigned)time(NULL));
 		choose = rand() % skillNum;							//随机数决定敌人释放的技能
