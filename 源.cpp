@@ -1,11 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include<windows.h>
 
 #define ERR_SKILL_LIST_EXCEED -1	//技能表越界
 
-#define skillNum 4					//技能个数
+#define skillNum 4					//实体技能个数
 #define nameLength 20				//名称长度
+#define skillLength 3				//总技能个数
 
 /*技能结构体定义*/
 typedef struct {
@@ -25,30 +27,34 @@ typedef struct {
 	int i = 0;						//实体类型 
 }Entity;
 
-void UI_fight(Entity, Entity);					/*战斗界面UI*/
-void setEntityName(Entity* entity);				/*设置实体名称*/
-void setEntity(Entity* entity, int i);			/*初始化实体*/
+void UI_fight(Entity);											/*战斗界面UI*/
+int UI_fighting(Entity, Entity);								/*战斗中UI*/
+void setEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
+Skill catchSkill(int i);										/*调用技能*/
 
 /*顺序表操作集*/
-void InitList(SkillList*);						//建空表
-int Length(SkillList);							//求表长
-void Insert(SkillList*, int, Skill);				//插入数据
+void InitList(SkillList*);							//建空表
+int Length(SkillList);								//求表长
+void updata(SkillList*, int, Skill);				//修改数据
 
-int difficulty = 1;		/*难度因子*/
+int difficulty = 1;		/*难度系数*/
 
 /*技能列表*/
-static Skill skillNull{ "NULL",0 };
-static Skill a{ "撞击",10 };
-static Skill b{ "大兜子",30 };
-static Skill c{ "小亮の活",50 };
+static Skill skill_ERROR{ "ERROR",-114514 };
+static Skill skill_Null{ "NULL",0 };
+static Skill skill_One{ "撞击",10 };
+static Skill skill_Two{ "大兜子",30 };
+static Skill skill_Three{ "小亮の活",50 };
 
 int main() {
 	Entity player;
+	char name[nameLength];
 	printf("欢迎进入游戏\n");
 	printf("***********\n");
 	printf("请输入您的名称\n");
 	putchar('\n');
-	setEntityName(&player);
+	gets_s(name);
+	setEntity(&player, 2, name);
 	while (true) {
 		system("CLS");
 		puts(player.name);
@@ -61,7 +67,7 @@ int main() {
 		choose = getchar();
 		while (getchar() != '\n');
 		if (choose == '1')
-			break;
+			UI_fight(player);
 		else if (choose == '2')
 			break;
 		else if (choose == '3')
@@ -70,27 +76,84 @@ int main() {
 			printf("请输入正确的选项！\n");
 			Sleep(1000);
 		}
-
 	}
-
 }
 /*初始化实体*/
 /*当i为1时，实体为小怪类型
-  当i为2时，实体为用户类型
-  当i为3时，实体为精英类型*/
-void setEntity(Entity* entity, int i) {
-	entity->HP = i * difficulty * 100;
+  当i为2时，实体为精英类型
+  当i为3时，实体为首领类型*/
+void setEntity(Entity* entity, int i, char name[nameLength]) {
+	strcpy_s(entity->name, name);
+	int hp = i * difficulty * 100;
+	entity->HP = hp;
 	entity->i = i;
 	InitList(&entity->SkillList);
-	Insert(&entity->SkillList, 0, skillNull);
-}
-/*设置实体名称*/
-void setEntityName(Entity* entity) {
-	gets_s(entity->name);
+	updata(&entity->SkillList, 0, skill_Null);
+	updata(&entity->SkillList, 1, skill_Null);
+	updata(&entity->SkillList, 2, skill_Null);
+	updata(&entity->SkillList, 3, skill_Null);
 }
 
-/*战斗UI*/
-void UI_fight() {
+/*战斗界面UI*/
+void UI_fight(Entity player) {
+	head:
+	system("CLS");
+	int i = rand() % 3 + 1;						//随机生成怪物类型
+	char iname[nameLength];
+	switch (i) {
+	case 1:strcpy_s(iname, "小怪");break;
+	case 2:strcpy_s(iname, "精英");break;
+	case 3:strcpy_s(iname, "首领");break;
+	}
+	printf("你遇到了一个%s！\n", iname);
+	printf("*****************\n");
+	Entity mob;
+	setEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
+	for (int i = 4;i;i--) {						//随机构建怪物技能表
+		int a = 1 + rand() % skillLength;
+		updata(&mob.SkillList, i, catchSkill(a));
+	}
+	printf("是否开始战斗？\n");
+	printf("Y/N\n");
+	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
+		while (getchar() != '\n');					
+		if (ch == 'Y' || ch == 'y')
+			break;
+		else if (ch == 'N' || ch == 'n')
+			goto head;
+		else {
+			printf("请输入正确的选项！\n");
+			continue;
+		}
+		break;
+	}
+	UI_fighting(player, mob);
+}
+
+/*战斗中UI*/
+int UI_fighting(Entity player,Entity mob) {
+	system("CLS");
+	putchar(10);
+	int i = 0;
+	while (player.HP > 0 && mob.HP > 0&&i<5) {
+		i++;
+		printf("***********第%d回合************\n", i);
+		printf("%s的生命值剩余%d\n", player.name, player.HP);
+		printf("%s的生命值剩余%d\n", mob.name, mob.HP);
+
+	}
+	return 0;
+}
+
+/*调用技能*/
+Skill catchSkill(int i) {
+	switch (i) {
+	case 0:return skill_Null;
+	case 1:return skill_One;
+	case 2:return skill_Two;
+	case 3:return skill_Three;
+	default:return skill_ERROR;
+	}
 }
 
 /*顺序表操作集*/
@@ -102,10 +165,8 @@ void InitList(SkillList* list) {
 int Length(SkillList list) {
 	return list.length;
 }
-/*插入数据*/
-void Insert(SkillList* list, int i, Skill x) {
-	int j = Length(*list);
-	for (j;j > i - 1;j--)
-		list->data[j + 1] = list->data[j];
+/*修改数据*/
+void updata(SkillList* list, int i, Skill x) {
+	i--;
 	list->data[i] = x;
 }
