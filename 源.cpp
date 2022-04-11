@@ -96,7 +96,7 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 
 /*战斗界面UI*/
 void UI_fight(Entity player) {
-	head:
+head:
 	system("CLS");
 	int i = rand() % 3 + 1;						//随机生成怪物类型
 	char iname[nameLength];
@@ -116,7 +116,7 @@ void UI_fight(Entity player) {
 	printf("是否开始战斗？\n");
 	printf("Y/N\n");
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
-		while (getchar() != '\n');					
+		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
 			break;
 		else if (ch == 'N' || ch == 'n')
@@ -127,22 +127,49 @@ void UI_fight(Entity player) {
 		}
 		break;
 	}
-	UI_fighting(player, mob);
+	difficulty += UI_fighting(player, mob);		//若胜利则难度系数+1，若失败则-1。
 }
 
 /*战斗中UI*/
-int UI_fighting(Entity player,Entity mob) {
+int UI_fighting(Entity player, Entity mob) {
 	system("CLS");
 	putchar(10);
 	int i = 0;
-	while (player.HP > 0 && mob.HP > 0&&i<5) {
-		i++;
+	while (player.HP > 0 && mob.HP > 0) {
+		i++;												//回合计数器
 		printf("***********第%d回合************\n", i);
 		printf("%s的生命值剩余%d\n", player.name, player.HP);
 		printf("%s的生命值剩余%d\n", mob.name, mob.HP);
-
+		putchar(10);
+		printf("你要做什么？\n");
+		for (int i = 0;i < skillNum;i++) {
+			printf("%d.%s", i + 1, player.SkillList.data[i].name);
+		}
+		int choose;
+		scanf_s("%d", &choose);								//控制台输入玩家释放的技能
+		if (i >= 1 && i < skillNum) {
+			mob.HP -= player.SkillList.data[i - 1].atk;
+			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d", player.name, player.SkillList.data[i - 1].name, mob.name, player.SkillList.data[i - 1].atk, mob.name, mob.HP);
+		}
+		if (mob.HP <= 0)break;
+		choose = rand() % skillNum;							//随机数决定敌人释放的技能
+		player.HP -= mob.SkillList.data[choose].atk;
+		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
+		if (player.HP <= 0)break;
 	}
-	return 0;
+	printf("战斗结束！\n");
+	if (player.HP <= 0) {
+		printf("你失败了！\n");
+		printf("按任意键返回。\n");
+		while (getchar() != '\n');
+		return -1;
+	}
+	else {
+		printf("你胜利了！\n");
+		printf("按任意键返回。\n");
+		while (getchar() != '\n');
+		return 1;
+	}
 }
 
 /*调用技能*/
