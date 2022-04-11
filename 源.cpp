@@ -194,6 +194,5 @@ int Length(SkillList list) {
 }
 /*ĞŞ¸ÄÊı¾İ*/
 void updata(SkillList* list, int i, Skill x) {
-	i--;
 	list->data[i] = x;
 }
