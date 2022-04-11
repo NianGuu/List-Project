@@ -1,39 +1,47 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<windows.h>
+
+#define ERR_SKILL_LIST_EXCEED -1	//技能表越界
+
 #define skillNum 4					//技能个数
 #define nameLength 20				//名称长度
+
 /*技能结构体定义*/
 typedef struct {
 	char name[nameLength] = {};		//技能名称
-	int atk=0;						//技能伤害
-}Skill;						
+	int atk = 0;						//技能伤害
+}Skill;
 /*技能表顺序表定义*/
-typedef struct{
+typedef struct {
 	Skill data[skillNum];			//技能表中所含技能数组
-	int length=0;					//技能表长度
-}SkillList;					
+	int length = 0;					//技能表长度
+}SkillList;
 /*实体结构体定义*/
-typedef struct {								
+typedef struct {
 	char name[nameLength] = {};		//实体名称
-	int HP=0;						//实体生命值
+	int HP = 0;						//实体生命值
 	SkillList SkillList;			//实体所带技能表
-	int i=0;						//实体类型 
-}Entity;			
+	int i = 0;						//实体类型 
+}Entity;
 
 void UI_fight(Entity, Entity);					/*战斗界面UI*/
-void UI_skill();								/*技能列表UI*/
 void setEntityName(Entity* entity);				/*设置实体名称*/
 void setEntity(Entity* entity, int i);			/*初始化实体*/
-void skillMenu();								/*初始化技能菜单*/
 
 /*顺序表操作集*/
-/*建空表*/
-void InitList(SkillList*);
-/*求表长*/
-int Length(SkillList);
+void InitList(SkillList*);						//建空表
+int Length(SkillList);							//求表长
+void Insert(SkillList*, int, Skill);				//插入数据
 
 int difficulty = 1;		/*难度因子*/
+
+/*技能列表*/
+static Skill skillNull{ "NULL",0 };
+static Skill a{ "撞击",10 };
+static Skill b{ "大兜子",30 };
+static Skill c{ "小亮の活",50 };
+
 int main() {
 	Entity player;
 	printf("欢迎进入游戏\n");
@@ -74,16 +82,11 @@ void setEntity(Entity* entity, int i) {
 	entity->HP = i * difficulty * 100;
 	entity->i = i;
 	InitList(&entity->SkillList);
+	Insert(&entity->SkillList, 0, skillNull);
 }
 /*设置实体名称*/
 void setEntityName(Entity* entity) {
 	gets_s(entity->name);
-}
-/*技能菜单*/
-void skillMenu() {
-	static Skill a{ "撞击",10 };
-	static Skill b{ "大兜子",30 };
-	static Skill c{ "小亮の活",50 };
 }
 
 /*战斗UI*/
@@ -98,4 +101,11 @@ void InitList(SkillList* list) {
 /*求表长*/
 int Length(SkillList list) {
 	return list.length;
+}
+/*插入数据*/
+void Insert(SkillList* list, int i, Skill x) {
+	int j = Length(*list);
+	for (j;j > i - 1;j--)
+		list->data[j + 1] = list->data[j];
+	list->data[i] = x;
 }
