@@ -52,12 +52,7 @@ void Traversal(NoneSkillLink);						//遍历
 
 int difficulty = 1;		/*难度系数*/
 
-/*技能列表*/
-static Skill skill_ERROR{ "ERROR",-114514 };
-static Skill skill_Null{ "NULL",0 };
-static Skill skill_One{ "撞击",10 };
-static Skill skill_Two{ "大兜子",30 };
-static Skill skill_Three{ "小亮の活",50 };
+
 
 int main() {
 	Entity player;
@@ -108,7 +103,7 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
 		InsertNode(entity->NoneSkill, i, catchSkill(i + 1));
-	//Traversal(entity->NoneSkill);
+	Traversal(entity->NoneSkill);
 }
 
 /*战斗界面UI*/
@@ -157,12 +152,13 @@ int UI_fighting(Entity player, Entity mob) {
 	int choose;
 	while (player.HP > 0 && mob.HP > 0) {
 		i++;//回合计数器
+		system("CLS");
 		printf("***********第%d回合************\n", i);
-		Sleep(500);
+		//Sleep(500);
 		printf("%s的生命值剩余%d\n", player.name, player.HP);
-		Sleep(500);
+		//Sleep(500);
 		printf("%s的生命值剩余%d\n", mob.name, mob.HP);
-		Sleep(500);
+		//Sleep(500);
 		putchar(10);
 		printf("你要做什么？\n");
 		for (int i = 0;i < skillNum;i++) {
@@ -208,6 +204,12 @@ int UI_fighting(Entity player, Entity mob) {
 /*调用技能*/
 Skill catchSkill(int i) {
 	
+	/*技能列表*/
+	 Skill skill_ERROR{ "ERROR",-114514 };
+	 Skill skill_Null{ "NULL",0 };
+	 Skill skill_One{ "撞击",10 };
+	 Skill skill_Two{ "大兜子",30 };
+	 Skill skill_Three{ "小亮の活",50 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
@@ -235,13 +237,13 @@ void updata(SkillList* list, int i, Skill x) {
 /*单链表操作集*/
 /*建空表*/
 NoneSkillLink InitListNode() {
-	NoneSkillLink head = (NoneSkillLink)malloc(sizeof(NoneSkillLink));
+	NoneSkillLink head = (NoneSkillLink)malloc(sizeof(NoneSkillNode));
 	head->next = NULL;
 	return head;
 }
 /*插入*/
 void InsertNode(NoneSkillLink head, int i, Skill x) {
-	NoneSkillLink s = (NoneSkillLink)malloc(sizeof(NoneSkillLink));
+	NoneSkillLink s = (NoneSkillLink)malloc(sizeof(NoneSkillNode));
 	s->data = x;
 	int j = 0;
 	while (j < i - 1 && head) {
@@ -253,7 +255,7 @@ void InsertNode(NoneSkillLink head, int i, Skill x) {
 }
 /*求表长*/
 int Length(NoneSkillLink head) {
-	int i = 0;
+	int i = 1;
 	while (head = head->next)
 		i++;
 	return i;
