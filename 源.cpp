@@ -52,6 +52,7 @@ SkillLink InitListNode();						//初始化单链表
 void InsertNode(SkillLink, int, Skill);			//插入单链表
 int Length(SkillLink);							//求表长
 void Traversal(SkillLink);						//遍历
+void Delete(SkillLink, int, SkillLink*);		//删除
 
 int difficulty = 1;		/*难度系数*/
 
@@ -107,7 +108,6 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
 		InsertNode(entity->NoneSkill, i, catchSkill(i + 1));
-	Traversal(entity->NoneSkill);
 }
 
 /*战斗界面UI*/
@@ -206,7 +206,7 @@ int UI_fighting(Entity player, Entity mob) {
 
 /*技能界面UI*/
 void UI_skill(Entity player) {
-	head:
+head:
 	system("CLS");
 	printf("%s\n等级：%d\n", player.name, difficulty);
 	printf("当前技能：\n");
@@ -215,7 +215,7 @@ void UI_skill(Entity player) {
 	printf("\n已拥有的技能：\n");
 	Traversal(player.OwnSkill);
 	printf("\n请输入操作：\n");
-	printf("0.退出");
+	printf("0.退出\n");
 	printf("1.查看未拥有技能\n");
 	while (char i = getchar()) {
 		while (getchar() != '\n');
@@ -230,7 +230,7 @@ void UI_skill(Entity player) {
 			printf("请输入正确的选项！\n");
 			Sleep(300);
 			goto head;
-		}			  
+		}
 		}
 		break;
 	}
@@ -309,4 +309,29 @@ void Traversal(SkillLink head) {
 		i++;
 	}
 	putchar(10);
+}
+/*删除*/
+void Delete(SkillLink head, int i) {
+	SkillLink s = (SkillLink)malloc(sizeof(SkillNode));
+	int j = 0;
+	while (head->next && j < i - 1) {
+		head = head->next;
+		j++;
+	}
+	s = head->next;
+	head->next = s->next;
+	free(s);
+}
+/*删除-重载-带回值*/
+void Delete(SkillLink head, int i, SkillLink* head2) {
+	SkillLink s = (SkillLink)malloc(sizeof(SkillNode));
+	int j = 0;
+	while (head->next && j < i - 1) {
+		head = head->next;
+		j++;
+	}
+	s = head->next;
+	head->next = s->next;
+	s->next = NULL;
+	*head2 = s;
 }
