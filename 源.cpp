@@ -12,7 +12,7 @@
 
 /*技能结构体定义*/
 typedef struct {
-	char name[nameLength];		//技能名称
+	char name[nameLength];			//技能名称
 	int atk;						//技能伤害
 }Skill;
 /*技能表顺序表定义*/
@@ -38,11 +38,13 @@ typedef struct {
 void UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
 void UI_skill(Entity*);											/*技能界面UI*/
-void setEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
-Skill catchSkill(int i);										/*调用技能*/
-void GetSkill(Entity*,int);										/*获取新技能*/
+void SetEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
+Skill CatchSkill(int i);										/*调用技能*/
+void GetSkill(Entity*, int);										/*获取新技能*/
 void next();													/*按任意键下一步*/
 
+int UnloadSkill(Entity*, int);									/*卸下技能*/
+void LoadSkill(Entity*, int);									/*装配技能*/
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
 int Length(SkillList);								//求表长
@@ -55,7 +57,8 @@ int Length(SkillLink);							//求表长
 void Traversal(SkillLink);						//遍历
 SkillLink Delete(SkillLink, int);				//删除
 int Locate(SkillLink, Skill);					//已知值查找序号
-
+SkillLink GetElem(SkillLink,int);				//已知序号查找值
+		
 int difficulty = 1;		/*难度系数*/
 
 
@@ -68,7 +71,7 @@ int main() {
 	printf("请输入您的名称\n");
 	putchar('\n');
 	gets_s(name);
-	setEntity(&player, 2, name);
+	SetEntity(&player, 2, name);
 	while (true) {
 		system("CLS");
 		puts(player.name);
@@ -97,19 +100,19 @@ int main() {
 /*当i为1时，实体为小怪类型
   当i为2时，实体为精英类型
   当i为3时，实体为首领类型*/
-void setEntity(Entity* entity, int i, char name[nameLength]) {
+void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	strcpy_s(entity->name, name);				//名称
 	entity->HP = i * difficulty * 100;			//血量
 	entity->i = i;								//实体类型
 	InitList(&entity->SkillList);				//初始化技能表
-	updata(&entity->SkillList, 0, catchSkill(0));
-	updata(&entity->SkillList, 1, catchSkill(0));
-	updata(&entity->SkillList, 2, catchSkill(0));
-	updata(&entity->SkillList, 3, catchSkill(0));
+	updata(&entity->SkillList, 0, CatchSkill(0));
+	updata(&entity->SkillList, 1, CatchSkill(0));
+	updata(&entity->SkillList, 2, CatchSkill(0));
+	updata(&entity->SkillList, 3, CatchSkill(0));
 	entity->OwnSkill = InitListNode();			//初始化已获取技能表
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
-		InsertNode(entity->NoneSkill, i+1, catchSkill(i + 1));
+		InsertNode(entity->NoneSkill, i + 1, CatchSkill(i + 1));
 }
 
 /*战斗界面UI*/
@@ -127,11 +130,11 @@ head:
 	printf("你遇到了一个%s！\n", iname);
 	printf("*****************\n");
 	Entity mob;
-	setEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
+	SetEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
 	for (int i = 4;i;i--) {						//随机构建怪物技能表
 		srand((unsigned)time(NULL));
 		int a = 1 + rand() % (skillLength - 1);
-		updata(&mob.SkillList, i - 1, catchSkill(a));
+		updata(&mob.SkillList, i - 1, CatchSkill(a));
 	}
 	printf("是否开始战斗？\n");
 	printf("Y/N\n");
@@ -228,6 +231,12 @@ head:
 			Traversal(player->NoneSkill);
 			next();
 		};goto head;
+		case '3':GetSkill(player, 1);goto head;
+		case '4': {
+			if (UnloadSkill(player, 1) == -1) {
+				printf("此位置无技能，无法卸下！\n");
+			}
+		}
 		default: {
 			printf("请输入正确的选项！\n");
 			Sleep(300);
@@ -239,11 +248,26 @@ head:
 }
 
 /*获取技能*/
-void GetSkill(Entity* player,int i) {
+///i的值为player未获得技能表中的第i位
+///即将player未获得技能表中的第i位删除并插入player已获得技能表中的第一位
+void GetSkill(Entity* player, int i) {
 	InsertNode(player->OwnSkill, 1, Delete(player->NoneSkill, i)->data);
 }
+/*卸下技能*/
+int UnloadSkill(Entity* player, int i) {
+	if (player->SkillList.data[i-1].name == CatchSkill(0).name)
+		return -1;												//此技能为空，无法卸下
+	InsertNode(player->OwnSkill, 1, player->SkillList.data[i-1]);
+	updata(&player->SkillList, i, CatchSkill(0));
+	return 0;
+}
+/*装配技能*/
+void LoadSkill(Entity* player, int i) {
+
+}
+
 /*调用技能*/
-Skill catchSkill(int i) {
+Skill CatchSkill(int i) {
 
 	/*技能列表*/
 	Skill skill_ERROR{ "ERROR",-114514 };
@@ -329,7 +353,7 @@ SkillLink Delete(SkillLink head, int i) {
 	s->next = NULL;
 	return s;
 }
-/*查找*/
+/*已知值查找序号*/
 int Locate(SkillLink head, Skill x) {
 	int i = 0;
 	while (head) {
@@ -339,4 +363,13 @@ int Locate(SkillLink head, Skill x) {
 			return i;
 	}
 	return -1;
+}
+/*已知序号查找值*/
+SkillLink GetElem(SkillLink head, int i) {
+	int j = 0;
+	while (head&&j<i) {
+		head = head->next;
+		j++;
+	}
+	return head;
 }
