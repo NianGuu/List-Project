@@ -3,6 +3,7 @@
 #include<string.h>
 #include<windows.h>
 #include<time.h>
+#include<math.h>
 
 #define ERR_SKILL_LIST_EXCEED -1	//技能表越界
 
@@ -40,7 +41,7 @@ void UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
 void UI_skill(Entity*);											/*技能界面UI*/
 int UI_UnloadSkill(Entity*);									/*卸下技能UI*/
-void UI_LoadSkill(Entity*);										/*装载技能UI*/
+int UI_LoadSkill(Entity*);										/*装载技能UI*/
 
 void SetEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
 Skill CatchSkill(int i);										/*调用技能*/
@@ -49,6 +50,9 @@ void next();													/*按任意键下一步*/
 
 int UnloadSkill(Entity*, int);									/*卸下技能*/
 int LoadSkill(Entity*, int);									/*装配技能*/
+
+int ToInt(char[]);			//字符串类型转换为整型
+
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
 int Length(SkillList);								//求表长
@@ -58,7 +62,7 @@ int Locate(SkillList, Skill);						//已知值求下标
 /*单链表操作集*/
 SkillLink InitListNode();						//初始化单链表
 void InsertNode(SkillLink, int, Skill);			//插入单链表
-int LengthNode(SkillLink);							//求表长
+int LengthNode(SkillLink);						//求表长
 void Traversal(SkillLink);						//遍历
 SkillLink Delete(SkillLink, int);				//删除
 int LocateNode(SkillLink, Skill);				//已知值查找序号
@@ -240,9 +244,7 @@ head:
 			next();
 		};goto head;
 		case '2':UI_UnloadSkill(player);goto head;
-		case '3': {
-
-		};goto head;
+		case '3':UI_LoadSkill(player);goto head;
 		default: {
 			printf("请输入正确的选项！\n");
 			Sleep(300);
@@ -254,7 +256,7 @@ head:
 }
 /*卸下技能UI*/
 int UI_UnloadSkill(Entity* player) {
-	char i;
+	char i[nameLength];
 	int num = -1;
 head:
 	system("CLS");
@@ -264,18 +266,13 @@ head:
 	printf("\n已拥有的技能：\n");
 	Traversal(player->OwnSkill);
 	printf("\n请选择你要卸下的技能(1-4)\n输入0退出\n");
-	i = getchar();
-	while (getchar() != '\n');
-	switch (i) {
-	case '0':return 0;break;
-	case '1':num = 1;break;
-	case '2':num = 2;break;
-	case '3':num = 3;break;
-	case '4':num = 4;break;
-	default: {
-		printf("请输入正确的技能栏位置（1-4）！\n");
+	num = ToInt(gets_s(i));
+	if (num == 0)
+		return 0;
+	if (num == -1) { 
+		printf("请输入正确的技能栏(1-4)!\n");
 		Sleep(300);
-	};goto head;
+		goto head;
 	}
 	int j = UnloadSkill(player, num);
 	switch (j) {
@@ -287,8 +284,33 @@ head:
 	goto head;
 }
 /*装载技能UI*/
-void UI_LoadSkill(Entity* player) {
-
+int UI_LoadSkill(Entity* player) {
+	char i[nameLength];
+	int num;
+head:
+	system("CLS");
+	printf("当前技能：\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("%d.%s\n", i + 1, player->SkillList.data[i].name);
+	printf("\n已拥有的技能：\n");
+	Traversal(player->OwnSkill);
+	printf("请输入你要装载的技能：\n输入0退出\n");
+	num = ToInt(gets_s(i));
+	if (num == 0)
+		return 0;
+	if (num == -1) {
+		printf("请输入正确的技能代码!\n");
+		Sleep(300);
+		goto head;
+	}
+	int j = LoadSkill(player, num);
+	switch (j) {
+	case 0:printf("已成功装配技能！");break;
+	case -1:printf("技能栏已满，无法装配！\n");break;
+	case -2:printf("你没有此技能，请输入正确的技能！\n");break;
+	}
+	Sleep(300);
+	goto head;
 }
 
 /*获取技能*/
@@ -323,7 +345,6 @@ int LoadSkill(Entity* player, int i) {
 
 /*调用技能*/
 Skill CatchSkill(int i) {
-
 	/*技能列表*/
 	Skill skill_ERROR{ -1,"ERROR",-114514 };
 	Skill skill_Null{ 0, "NULL",0 };
@@ -369,6 +390,20 @@ int Locate(SkillList head, Skill x) {
 	return -1;
 }
 
+/*字符串转换为整型*/
+int ToInt(char ch[]) {
+	for (int i = 0;ch[i]!='\0';i++)					//若字符串中含有非数字，则返回值-1
+		if (ch[i] < '0' || ch[i]>'9')
+			return -1;
+	int num=0;
+	int j;
+	for (int i = 0;ch[i] != '\0';i++) {
+		num *= pow(10, i);
+		num += (ch[i] - 48);
+	}
+	return num;
+}
+
 /*单链表操作集*/
 /*建空表*/
 SkillLink InitListNode() {
@@ -390,7 +425,7 @@ void InsertNode(SkillLink head, int i, Skill x) {
 }
 /*求表长*/
 int LengthNode(SkillLink head) {
-	int i = 1;
+	int i = 0;
 	while (head = head->next)
 		i++;
 	return i;
