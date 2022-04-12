@@ -12,6 +12,7 @@
 
 /*技能结构体定义*/
 typedef struct {
+	short ID;						//技能ID
 	char name[nameLength];			//技能名称
 	int atk;						//技能伤害
 }Skill;
@@ -38,27 +39,31 @@ typedef struct {
 void UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
 void UI_skill(Entity*);											/*技能界面UI*/
+int UI_UnloadSkill(Entity*);									/*卸下技能UI*/
+void UI_LoadSkill(Entity*);										/*装载技能UI*/
+
 void SetEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
 Skill CatchSkill(int i);										/*调用技能*/
-void GetSkill(Entity*, int);										/*获取新技能*/
+void GetSkill(Entity*, int);									/*获取新技能*/
 void next();													/*按任意键下一步*/
 
 int UnloadSkill(Entity*, int);									/*卸下技能*/
-void LoadSkill(Entity*, int);									/*装配技能*/
+int LoadSkill(Entity*, int);									/*装配技能*/
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
 int Length(SkillList);								//求表长
 void updata(SkillList*, int, Skill);				//修改数据
+int Locate(SkillList, Skill);						//已知值求下标
 
 /*单链表操作集*/
 SkillLink InitListNode();						//初始化单链表
 void InsertNode(SkillLink, int, Skill);			//插入单链表
-int Length(SkillLink);							//求表长
+int LengthNode(SkillLink);							//求表长
 void Traversal(SkillLink);						//遍历
 SkillLink Delete(SkillLink, int);				//删除
-int Locate(SkillLink, Skill);					//已知值查找序号
-SkillLink GetElem(SkillLink,int);				//已知序号查找值
-		
+int LocateNode(SkillLink, Skill);				//已知值查找序号
+SkillLink GetElem(SkillLink, int);				//已知序号查找值
+
 int difficulty = 1;		/*难度系数*/
 
 
@@ -105,10 +110,10 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->HP = i * difficulty * 100;			//血量
 	entity->i = i;								//实体类型
 	InitList(&entity->SkillList);				//初始化技能表
-	updata(&entity->SkillList, 0, CatchSkill(0));
-	updata(&entity->SkillList, 1, CatchSkill(0));
-	updata(&entity->SkillList, 2, CatchSkill(0));
-	updata(&entity->SkillList, 3, CatchSkill(0));
+	updata(&entity->SkillList, 0, CatchSkill(3));
+	updata(&entity->SkillList, 1, CatchSkill(2));
+	updata(&entity->SkillList, 2, CatchSkill(1));
+	updata(&entity->SkillList, 3, CatchSkill(1));
 	entity->OwnSkill = InitListNode();			//初始化已获取技能表
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
@@ -220,8 +225,11 @@ head:
 	printf("\n已拥有的技能：\n");
 	Traversal(player->OwnSkill);
 	printf("\n请输入操作：\n");
-	printf("0.退出\n");
 	printf("1.查看未拥有技能\n");
+	printf("2.卸下技能\n");
+	printf("3.装载技能\n");
+	printf("0.退出\n");
+	putchar(10);
 	while (char i = getchar()) {
 		while (getchar() != '\n');
 		switch (i) {
@@ -231,12 +239,10 @@ head:
 			Traversal(player->NoneSkill);
 			next();
 		};goto head;
-		case '3':GetSkill(player, 1);goto head;
-		case '4': {
-			if (UnloadSkill(player, 1) == -1) {
-				printf("此位置无技能，无法卸下！\n");
-			}
-		}
+		case '2':UI_UnloadSkill(player);goto head;
+		case '3': {
+
+		};goto head;
 		default: {
 			printf("请输入正确的选项！\n");
 			Sleep(300);
@@ -246,35 +252,84 @@ head:
 		break;
 	}
 }
+/*卸下技能UI*/
+int UI_UnloadSkill(Entity* player) {
+	char i;
+	int num = -1;
+head:
+	system("CLS");
+	printf("当前技能：\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("%d.%s\n", i + 1, player->SkillList.data[i].name);
+	printf("\n已拥有的技能：\n");
+	Traversal(player->OwnSkill);
+	printf("\n请选择你要卸下的技能(1-4)\n输入0退出\n");
+	i = getchar();
+	while (getchar() != '\n');
+	switch (i) {
+	case '0':return 0;break;
+	case '1':num = 1;break;
+	case '2':num = 2;break;
+	case '3':num = 3;break;
+	case '4':num = 4;break;
+	default: {
+		printf("请输入正确的技能栏位置（1-4）！\n");
+		Sleep(300);
+	};goto head;
+	}
+	int j = UnloadSkill(player, num);
+	switch (j) {
+	case -1:printf("此位置无技能，卸下失败！\n");break;
+	case -2:printf("请输入正确的技能栏！");break;
+	default:printf("已将%d位上的技能卸下！\n", num);break;
+	}
+	Sleep(300);
+	goto head;
+}
+/*装载技能UI*/
+void UI_LoadSkill(Entity* player) {
+
+}
 
 /*获取技能*/
 ///i的值为player未获得技能表中的第i位
 ///即将player未获得技能表中的第i位删除并插入player已获得技能表中的第一位
 void GetSkill(Entity* player, int i) {
-	InsertNode(player->OwnSkill, 1, Delete(player->NoneSkill, i)->data);
+	if (LengthNode(player->NoneSkill) >= 1) {
+		InsertNode(player->OwnSkill, 1, Delete(player->NoneSkill, i)->data);
+	}
+
 }
 /*卸下技能*/
 int UnloadSkill(Entity* player, int i) {
-	if (player->SkillList.data[i-1].name == CatchSkill(0).name)
+	if (i<1 || i>skillNum)
+		return -2;												//卸下位置越界
+	if (player->SkillList.data[i - 1].ID == CatchSkill(0).ID)
 		return -1;												//此技能为空，无法卸下
-	InsertNode(player->OwnSkill, 1, player->SkillList.data[i-1]);
-	updata(&player->SkillList, i, CatchSkill(0));
+	InsertNode(player->OwnSkill, 1, player->SkillList.data[i - 1]);
+	updata(&player->SkillList, i - 1, CatchSkill(0));
 	return 0;
 }
 /*装配技能*/
-void LoadSkill(Entity* player, int i) {
-
+int LoadSkill(Entity* player, int i) {
+	if (i > LengthNode(player->OwnSkill))
+		return -2;									//你没有此技能
+	int j = Locate(player->SkillList, CatchSkill(0));
+	if (j == -1)
+		return -1;									//技能栏已满
+	else
+		updata(&player->SkillList, j, Delete(player->OwnSkill, i)->data);
 }
 
 /*调用技能*/
 Skill CatchSkill(int i) {
 
 	/*技能列表*/
-	Skill skill_ERROR{ "ERROR",-114514 };
-	Skill skill_Null{ "NULL",0 };
-	Skill skill_One{ "撞击",10 };
-	Skill skill_Two{ "大兜子",30 };
-	Skill skill_Three{ "小亮の活",50 };
+	Skill skill_ERROR{ -1,"ERROR",-114514 };
+	Skill skill_Null{ 0, "NULL",0 };
+	Skill skill_One{ 1,"撞击",10 };
+	Skill skill_Two{ 2,"大兜子",30 };
+	Skill skill_Three{ 3, "小亮の活",50 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
@@ -304,6 +359,15 @@ int Length(SkillList list) {
 void updata(SkillList* list, int i, Skill x) {
 	list->data[i] = x;
 }
+/*已知值查找下标*/
+int Locate(SkillList head, Skill x) {
+	int i = 0;
+	for (i;i < skillNum;i++) {
+		if (head.data[i].ID == x.ID)
+			return i;
+	}
+	return -1;
+}
 
 /*单链表操作集*/
 /*建空表*/
@@ -325,7 +389,7 @@ void InsertNode(SkillLink head, int i, Skill x) {
 	head->next = s;
 }
 /*求表长*/
-int Length(SkillLink head) {
+int LengthNode(SkillLink head) {
 	int i = 1;
 	while (head = head->next)
 		i++;
@@ -354,7 +418,7 @@ SkillLink Delete(SkillLink head, int i) {
 	return s;
 }
 /*已知值查找序号*/
-int Locate(SkillLink head, Skill x) {
+int LocateNode(SkillLink head, Skill x) {
 	int i = 0;
 	while (head) {
 		head = head->next;
@@ -367,7 +431,7 @@ int Locate(SkillLink head, Skill x) {
 /*已知序号查找值*/
 SkillLink GetElem(SkillLink head, int i) {
 	int j = 0;
-	while (head&&j<i) {
+	while (head && j < i) {
 		head = head->next;
 		j++;
 	}
