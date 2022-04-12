@@ -18,26 +18,29 @@ typedef struct {
 /*技能表顺序表定义*/
 typedef struct {
 	Skill data[skillNum];			//技能表中所含技能数组
-	int length;					//技能表长度
+	int length;						//技能表长度
 }SkillList;
 /*未获取技能表结点定义*/
 typedef struct node {
 	Skill data;
 	struct node* next;
-}NoneSkillNode, * NoneSkillLink;
+}SkillNode, * SkillLink;
 /*实体结构体定义*/
 typedef struct {
 	char name[nameLength];		//实体名称
 	int HP;						//实体生命值
 	SkillList SkillList;		//实体所带技能表
-	NoneSkillLink NoneSkill;	//实体未获得技能表
+	SkillLink OwnSkill;			//实体已拥有技能表
+	SkillLink NoneSkill;		//实体未获得技能表
 	int i;						//实体类型 
 }Entity;
 
 void UI_fight(Entity);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
+void UI_skill(Entity);											/*技能界面UI*/
 void setEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
 Skill catchSkill(int i);										/*调用技能*/
+void next();													/*按任意键下一步*/
 
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
@@ -45,10 +48,10 @@ int Length(SkillList);								//求表长
 void updata(SkillList*, int, Skill);				//修改数据
 
 /*单链表操作集*/
-NoneSkillLink InitListNode();						//初始化单链表
-void InsertNode(NoneSkillLink, int, Skill);			//插入单链表
-int Length(NoneSkillLink);							//求表长
-void Traversal(NoneSkillLink);						//遍历
+SkillLink InitListNode();						//初始化单链表
+void InsertNode(SkillLink, int, Skill);			//插入单链表
+int Length(SkillLink);							//求表长
+void Traversal(SkillLink);						//遍历
 
 int difficulty = 1;		/*难度系数*/
 
@@ -71,15 +74,15 @@ int main() {
 		printf("*************************\n");
 		printf("1.战斗\n");
 		printf("2.技能\n");
-		printf("3.退出\n");
+		printf("0.退出\n");
 		char choose;
 		choose = getchar();
 		while (getchar() != '\n');
 		if (choose == '1')
 			UI_fight(player);
 		else if (choose == '2')
-			break;
-		else if (choose == '3')
+			UI_skill(player);
+		else if (choose == '0')
 			return 0;
 		else {
 			printf("请输入正确的选项！\n");
@@ -100,6 +103,7 @@ void setEntity(Entity* entity, int i, char name[nameLength]) {
 	updata(&entity->SkillList, 1, catchSkill(0));
 	updata(&entity->SkillList, 2, catchSkill(0));
 	updata(&entity->SkillList, 3, catchSkill(0));
+	entity->OwnSkill = InitListNode();			//初始化已获取技能表
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
 		InsertNode(entity->NoneSkill, i, catchSkill(i + 1));
@@ -143,7 +147,6 @@ head:
 	}
 	difficulty += UI_fighting(player, mob);		//若胜利则难度系数+1，若失败则-1。
 }
-
 /*战斗中UI*/
 int UI_fighting(Entity player, Entity mob) {
 	system("CLS");
@@ -201,15 +204,53 @@ int UI_fighting(Entity player, Entity mob) {
 	}
 }
 
+/*技能界面UI*/
+void UI_skill(Entity player) {
+	head:
+	system("CLS");
+	printf("%s\n等级：%d\n", player.name, difficulty);
+	printf("当前技能：\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
+	printf("\n已拥有的技能：\n");
+	Traversal(player.OwnSkill);
+	printf("\n请输入操作：\n");
+	printf("0.退出");
+	printf("1.查看未拥有技能\n");
+	while (char i = getchar()) {
+		while (getchar() != '\n');
+		switch (i) {
+		case '0':break;
+		case '1': {
+			system("CLS");
+			Traversal(player.NoneSkill);
+			next();
+		};goto head;
+		default: {
+			printf("请输入正确的选项！\n");
+			Sleep(300);
+			goto head;
+		}			  
+		}
+		break;
+	}
+}
+
+/*按任意键下一步*/
+void next() {
+	printf("按任意键进行下一步\n");
+	while (getchar() != '\n');
+}
+
 /*调用技能*/
 Skill catchSkill(int i) {
-	
+
 	/*技能列表*/
-	 Skill skill_ERROR{ "ERROR",-114514 };
-	 Skill skill_Null{ "NULL",0 };
-	 Skill skill_One{ "撞击",10 };
-	 Skill skill_Two{ "大兜子",30 };
-	 Skill skill_Three{ "小亮の活",50 };
+	Skill skill_ERROR{ "ERROR",-114514 };
+	Skill skill_Null{ "NULL",0 };
+	Skill skill_One{ "撞击",10 };
+	Skill skill_Two{ "大兜子",30 };
+	Skill skill_Three{ "小亮の活",50 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
@@ -236,14 +277,14 @@ void updata(SkillList* list, int i, Skill x) {
 
 /*单链表操作集*/
 /*建空表*/
-NoneSkillLink InitListNode() {
-	NoneSkillLink head = (NoneSkillLink)malloc(sizeof(NoneSkillNode));
+SkillLink InitListNode() {
+	SkillLink head = (SkillLink)malloc(sizeof(SkillNode));
 	head->next = NULL;
 	return head;
 }
 /*插入*/
-void InsertNode(NoneSkillLink head, int i, Skill x) {
-	NoneSkillLink s = (NoneSkillLink)malloc(sizeof(NoneSkillNode));
+void InsertNode(SkillLink head, int i, Skill x) {
+	SkillLink s = (SkillLink)malloc(sizeof(SkillNode));
 	s->data = x;
 	int j = 0;
 	while (j < i - 1 && head) {
@@ -254,15 +295,18 @@ void InsertNode(NoneSkillLink head, int i, Skill x) {
 	head->next = s;
 }
 /*求表长*/
-int Length(NoneSkillLink head) {
+int Length(SkillLink head) {
 	int i = 1;
 	while (head = head->next)
 		i++;
 	return i;
 }
 /*遍历*/
-void Traversal(NoneSkillLink head) {
-	while (head = head->next)
-		printf("%s\n", head->data.name);
+void Traversal(SkillLink head) {
+	int i = 1;
+	while (head = head->next) {
+		printf("%d.%-6s\t伤害：%d\n", i, head->data.name, head->data.atk);
+		i++;
+	}
 	putchar(10);
 }
