@@ -1,0 +1,74 @@
+void wqshop(void)//武器店 
+{
+	int dj=1,cj=1;//用来分辨已经拥有或没有拥有
+	int v=1;
+	//gd是金钱
+
+		while(v==1)
+		{   int wq=0;
+			printf("你好勇士，欢迎来到武器店\n请问你需要什么？\n1   短剑(伤害加10)  500金币\n2   长剑(伤害加30)  2000金币\n3   退出武器店\n");
+			scanf("%d",&wq);
+			if(wq>2)
+			{
+				while(wq>3)
+				{
+					printf("未开放，敬请期待\n");
+					wq=0;
+				}
+				while(wq==3)
+				{
+					printf("你选择退出\n;");
+					v=0;
+					wq=0;
+				}
+			}
+			else
+			{
+				while(wq==1)
+				{
+				if(gd>500)
+				{
+					if(dj==1)
+					{
+						printf("你购买了短剑,伤害加十，重复购买无效\n");
+						//声明全局变量，装备加成攻击力
+						gd=gd-500;
+						dj=0;
+						wq=0;
+					}
+					else
+					{
+						printf("你已经购买过了\n");
+					}
+				}
+				else
+				{
+					printf("金币不足\n");	
+				}
+				 wq=0;
+				}
+				while(wq==2)
+				{
+				if(gd>2000)
+				{
+					if(cj==1)
+					{
+						printf("你购买了长剑，伤害加三十，重复购买无效\n");
+						//声明全局变量，装备加成攻击力
+						gd=gd-2000;
+						cj=0;
+					}
+					else
+					{
+						printf("你已经购买过了\n");
+					}
+				}
+				else
+				{
+					printf("金币不足\n");
+				}
+				wq=0;
+				}
+			}
+		}
+}
