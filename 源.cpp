@@ -133,7 +133,7 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	updata(&entity->SkillList, 0, CatchSkill(3));
 	updata(&entity->SkillList, 1, CatchSkill(2));
 	updata(&entity->SkillList, 2, CatchSkill(1));
-	updata(&entity->SkillList, 3, CatchSkill(4));
+	updata(&entity->SkillList, 3, CatchSkill(0));
 	entity->OwnSkill = InitListNode();			//初始化已获取技能表
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
@@ -199,55 +199,65 @@ int UI_fighting(Entity player, Entity mob) {
 		for (int i = 0;i < skillNum;i++) {
 			printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
 		}
+		printf("%d.药品\n", skillNum + 1);
 		while (true) {
 			scanf_s("%d", &choose);						//控制台输入玩家释放的技能
 			while (getchar() != '\n');
-			if (choose >= 1 && choose <= skillNum) {
+			if (choose >= 1 && choose <= skillNum+1) {
 				break;
 			}
 			else
 				printf("请输入正确的选项！");
 		}
 
-	//	if (choose == 4) {
-	//		int i;
-	//		for (i = 0;i < M;i++)
-	//		{
+		if (choose == (skillNum+1)) {
+			char ch[nameLength];
+			int j;
+			for (j = 0;j < M;j++)
+			{
 
-	//			printf("%d: %s%d个 吃了之后能增加HP%d\n", i, fd[i].name, fd[i].count, (fd[i].effect) * 20);
-	//		}
-	//		printf("选择你要吃的药品编号(-1取消):");
-	//		scanf_s("%d", &i);			//输入使用哪个药品
-	//		if (i >= 0 && i < M)
-	//		{
-	//			if (fd[i].count > 0)
-	//			{
-	//				printf("你吃了一个%s,HP增加了%d", fd[i].name, (fd[i].effect) * 20);
-	//				player.HP += (fd[i].effect) * 20;			//恢复效果
-	//				fd[i].count--;								//减少次数
-	//				if (player.HP > 200)player.HP = 200;			//恢复满
-	//			}
-	//			else
-	//			{
-	//				printf("你没有这个药品!");
-	//			}
-	//		}
-	//		Sleep(500);
-	//	}
-	//	else {
-	//		mob.HP -= player.SkillList.data[choose - 1].atk;
-	//		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[choose - 1].name, mob.name, player.SkillList.data[choose - 1].atk, mob.name, mob.HP);
-	//		Sleep(500);
-	//		if (mob.HP <= 0)break;
-	//		srand((unsigned)time(NULL));
-	//		choose = rand() % skillNum;							//随机数决定敌人释放的技能
-	//		printf("%d", choose);
-	//		player.HP -= mob.SkillList.data[choose].atk;
-	//		printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
-	//		Sleep(500);
-	//		if (player.HP <= 0)break;
-	//		Sleep(500);
-	//	}
+				printf("%d: %s%d个 吃了之后能增加HP%d\n", j+1, player.Food[j].name, player.Food[j].count, player.Food[j].effect);
+			}
+			printf("选择你要吃的药品编号\n输入0取消:");
+			while (j = ToInt(gets_s(ch))) {
+				if (j != -1)
+					break;
+				printf("请输入正确的选项！\n");
+			}
+			if (j >= 1 && j <= M)
+			{
+				if (player.Food[j].count > 0)
+				{
+					printf("你吃了一个%s,HP增加了%d", player.Food[j].name, player.Food[j].effect);
+					player.HP += player.Food[j].effect;			//恢复效果
+					player.Food[j].count--;								//减少次数
+					if (player.HP > 200)player.HP = 200;			//恢复满
+				}
+				else
+				{
+					printf("你没有这个药品!");
+				}
+			}
+			else if(j==0) {
+				i--;
+			}
+
+			Sleep(500);
+		}
+		else {
+			mob.HP -= player.SkillList.data[choose - 1].atk;
+			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[choose - 1].name, mob.name, player.SkillList.data[choose - 1].atk, mob.name, mob.HP);
+			Sleep(500);
+			if (mob.HP <= 0)break;
+			srand((unsigned)time(NULL));
+			choose = rand() % skillNum;							//随机数决定敌人释放的技能
+			printf("%d", choose);
+			player.HP -= mob.SkillList.data[choose].atk;
+			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
+			Sleep(500);
+			if (player.HP <= 0)break;
+			Sleep(500);
+		}
 	}
 	printf("战斗结束！\n");
 	if (player.HP <= 0) {
@@ -408,14 +418,12 @@ Skill CatchSkill(int i) {
 	Skill skill_One{ 1,"撞击",10 };
 	Skill skill_Two{ 2,"大兜子",30 };
 	Skill skill_Three{ 3, "小亮の活",50 };
-	Skill skill_Four{ 4, "药品",0 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
 	case 1:return skill_One;
 	case 2:return skill_Two;
 	case 3:return skill_Three;
-	case 4:return skill_Four;
 	default:return skill_ERROR;
 	}
 }
