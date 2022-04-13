@@ -3,7 +3,7 @@
 #include<string.h>
 #include<windows.h>
 #include<time.h>
-#include<math.h>
+#include<math.h> 
 
 #define ERR_SKILL_LIST_EXCEED -1	//技能表越界
 
