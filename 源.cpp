@@ -31,7 +31,6 @@ typedef struct node {
 /*药品结构体定义*/
 typedef struct {
 	char name[nameLength]; //药品名字 
-	int count;  //药品数量 
 	int effect;  //药品效果，每吃一个加多少生命值 
 }Food;
 /*实体结构体定义*/
@@ -42,6 +41,7 @@ typedef struct {
 	SkillLink OwnSkill;			//实体已拥有技能表
 	SkillLink NoneSkill;		//实体未获得技能表
 	Food Food[M];				//实体持有的药品
+	int FoodNum[M];				//实体持有的药品数量
 	int i;						//实体类型 
 }Entity;
 
@@ -138,8 +138,10 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
 	for (int i = 0;i < skillLength;i++)
 		InsertNode(entity->NoneSkill, i + 1, CatchSkill(i + 1));
-	for (int i = 0;i < M;i++)
-		entity->Food[i] = CatchFood(i + 1);		//初始化持有的药品
+	for (int i = 0;i < M;i++) {					//初始化持有的药品
+		entity->Food[i] = CatchFood(i + 1);
+		entity->FoodNum[i] = 1;
+	}
 }
 
 /*战斗界面UI*/
@@ -216,7 +218,7 @@ int UI_fighting(Entity player, Entity mob) {
 			for (j = 0;j < M;j++)
 			{
 
-				printf("%d: %s%d个 吃了之后能增加HP%d\n", j+1, player.Food[j].name, player.Food[j].count, player.Food[j].effect);
+				printf("%d: %s%d个 吃了之后能增加HP%d\n", j+1, player.Food[j].name, player.FoodNum[j], player.Food[j].effect);
 			}
 			printf("选择你要吃的药品编号\n输入0取消:");
 			while (j = ToInt(gets_s(ch))) {
@@ -226,11 +228,11 @@ int UI_fighting(Entity player, Entity mob) {
 			}
 			if (j >= 1 && j <= M)
 			{
-				if (player.Food[j].count > 0)
+				if (player.FoodNum[j-1]> 0)
 				{
-					printf("你吃了一个%s,HP增加了%d", player.Food[j].name, player.Food[j].effect);
-					player.HP += player.Food[j].effect;			//恢复效果
-					player.Food[j].count--;								//减少次数
+					printf("你吃了一个%s,HP增加了%d", player.Food[j-1].name, player.Food[j-1].effect);
+					player.HP += player.Food[j-1].effect;			//恢复效果
+					player.FoodNum[j-1]--;								//减少次数
 					if (player.HP > 200)player.HP = 200;			//恢复满
 				}
 				else
@@ -375,7 +377,7 @@ void UI_Food(Entity* player) {
 	printf("%s\n等级：%d\n", player->name, difficulty);
 	printf("当前药品：\n");
 	for (int i = 0;i < M;i++) {
-		printf("%d.%s\t数量：%d\t治疗量：%d\n", i + 1, player->Food[i].name, player->Food[i].count, player->Food[i].effect);
+		printf("%d.%s\t数量：%d\t治疗量：%d\n", i + 1, player->Food[i].name, player->FoodNum[i], player->Food[i].effect);
 	}
 	getchar();
 }
@@ -430,10 +432,10 @@ Skill CatchSkill(int i) {
 /*调用药品*/
 Food CatchFood(int i) {
 	/*药品列表*/
-	Food food_ERROR{ "ERROR",-1,-114514 };
-	Food food_One{ "金疮药",0,20 };
-	Food food_Two{ "大力丸",0,40 };
-	Food food_Three{ "续命丸",0,60 };
+	Food food_ERROR{ "ERROR",-114514 };
+	Food food_One{ "金疮药",20 };
+	Food food_Two{ "大力丸",40 };
+	Food food_Three{ "续命丸",60 };
 	/*药品返回*/
 	switch (i) {
 	case 1:return food_One;
