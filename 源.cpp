@@ -47,6 +47,9 @@ typedef struct {
 
 void UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
+void UI_Jade(Entity player, Entity mob, int i);					/*战斗信息*/
+void UI_fightSkill(Entity player);								/*战斗中技能UI*/
+void UI_fightFood(Entity player);								/*战斗中药品UI*/
 void UI_gain(Entity);											/*掉落物UI*/
 
 void UI_skill(Entity*);											/*技能界面UI*/
@@ -160,7 +163,7 @@ head:
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
 		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
-			UI_fighting(*player,mob);
+			UI_fighting(*player, mob);
 		else if (ch == 'N' || ch == 'n')
 			goto head;
 		else {
@@ -180,26 +183,64 @@ head:
 /*战斗中UI*/
 /*战斗胜利则返回1，战斗失败则返回0*/
 int UI_fighting(Entity player, Entity mob) {
-	system("CLS");
 	putchar(10);
 	int i = 0;
+	char chooseChar[nameLength];
 	int choose;
+	short branch;
 	while (player.HP > 0 && mob.HP > 0) {
 		i++;
-		printf("*—————————第%2d回合———————————*\n",i);
-		printf("|\t\t\t\t\t\t |\n");
-		printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", mob.name,difficulty, mob.HP);
-		printf("|\t\t\t\t\t\t |\n");
-		printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", player.name, difficulty,player.HP);
-		printf("|\t\t\t\t\t\t |\n");
-		printf("*————————————————————————*\n");
-		printf("\n你要进行什么操作?\n");
-		for (int j = 0;j < skillNum;j++)
-			printf("%d.%s\t伤害：%d\n", j, player.SkillList.data[j].name, player.SkillList.data[j].atk);
-		getchar();
-		getchar();
+	head:
+		UI_Jade(player, mob, i);
+		printf("你要进行什么操作?\n");
+		printf("    1.技能\n");
+		printf("    2.药品\n");
+		choose = ToInt(gets_s(chooseChar));
+		if (choose == 1) {
+			UI_Jade(player, mob, i);
+			UI_fightSkill(player);
+			branch = 2;
+		}
+		else if (choose == 2) {
+			UI_Jade(player, mob, i);
+			UI_fightFood(player);
+			branch = 2;
+		}
+		else {
+			printf("\n请输入正确的选项！\n");
+			Sleep(100);
+			goto head;
+		}
+		choose = ToInt(gets_s(chooseChar));
+		
 	}
 	return 0;
+}
+/*战斗信息*/
+/*带入战斗双方以及回合数*/
+void UI_Jade(Entity player, Entity mob, int i) {
+	system("CLS");
+	printf("*—————————第%2d回合———————————*\n", i);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", mob.name, difficulty, mob.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", player.name, difficulty, player.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("*————————————————————————*\n\n");
+}
+/*战斗中的技能界面*/
+void UI_fightSkill(Entity player) {
+	printf("你想要使用哪个技能？\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("    %-2d.%-10s伤害：%-10d\n", i + 1, player.SkillList.data[i].name, player.SkillList.data[i].atk);
+	printf("    输入0退出\n\n");
+}
+/*战斗中的药品界面*/
+void UI_fightFood(Entity player) {
+	printf("你想要使用哪个药品？\n");
+	for (int i = 0;i < M;i++)
+		printf("    %-2d.%-10s数量：%-10d治疗量：%-10d\n", i + 1, player.Food[i].name, player.FoodNum[i], player.Food[i].effect);
+	printf("    输入0退出\n\n");
 }
 /*掉落物*/
 /*以怪物为参数计算掉落物*/
@@ -307,10 +348,8 @@ void UI_Food(Entity* player) {
 	system("CLS");
 	printf("%s\n等级：%d\n", player->name, difficulty);
 	printf("当前药品：\n");
-	for (int i = 0;i < M;i++) {
+	for (int i = 0;i < M;i++)
 		printf("%d.%s\t数量：%d\t治疗量：%d\n", i + 1, player->Food[i].name, player->FoodNum[i], player->Food[i].effect);
-	}
-	getchar();
 }
 
 /*获取技能*/
