@@ -196,23 +196,41 @@ int UI_fighting(Entity player, Entity mob) {
 		printf("    1.技能\n");
 		printf("    2.药品\n");
 		choose = ToInt(gets_s(chooseChar));
-		if (choose == 1) {
+		if (choose == 1) {					//选择技能
+		branch1:
 			UI_Jade(player, mob, i);
 			UI_fightSkill(player);
-			branch = 2;
+			branch = 1;
 		}
-		else if (choose == 2) {
+		else if (choose == 2) {				//选择药品
+		branch2:
 			UI_Jade(player, mob, i);
 			UI_fightFood(player);
 			branch = 2;
 		}
 		else {
 			printf("\n请输入正确的选项！\n");
-			Sleep(100);
+			Sleep(200);
 			goto head;
 		}
 		choose = ToInt(gets_s(chooseChar));
-		
+		if (choose == 0)
+			goto head;
+		else
+			if (branch == 1) {
+				if (choose<1 || choose>skillNum) {			//若输入越界则返回技能列表
+					printf("\n请输入正确的选项！\n");
+					Sleep(200);
+					goto branch1;
+				}
+			}
+			else if (branch == 2) {
+				if (choose<1 || choose>M) {					//若输入越界则返回药品列表
+					printf("\n请输入正确的选项！\n");
+					Sleep(200);
+					goto branch2;
+				}
+			}
 	}
 	return 0;
 }
