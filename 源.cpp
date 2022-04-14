@@ -50,7 +50,7 @@ int UI_fighting(Entity, Entity);								/*战斗中UI*/
 void UI_Jade(Entity player, Entity mob, int i);					/*战斗信息*/
 void UI_fightSkill(Entity player);								/*战斗中技能UI*/
 void UI_fightFood(Entity player);								/*战斗中药品UI*/
-void UI_gain(Entity);											/*掉落物UI*/
+void UI_gain(Entity*,Entity);									/*掉落物UI*/
 
 void UI_skill(Entity*);											/*技能界面UI*/
 int UI_UnloadSkill(Entity*);									/*卸下技能UI*/
@@ -162,7 +162,7 @@ head:
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
 		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
-			UI_fighting(*player, mob);
+			break;
 		else if (ch == 'N' || ch == 'n')
 			goto head;
 		else {
@@ -171,16 +171,25 @@ head:
 		}
 		break;
 	}
-	if (UI_fighting) {				//战斗胜利
-		difficulty++;				//难度系数提升
-		UI_gain(mob);				//掉落物
+	int result = UI_fighting(*player,mob);
+	system("CLS");
+	switch (result) {
+	case -1: {			//战斗失败
+		printf("\n战斗失败！\n");
+		difficulty--;
+	};break;
+	case 1: {			//战斗胜利
+		printf("\n战斗胜利！\n");
+		difficulty++;
+	};break;
+	case 0: {			//逃跑
+		printf("\n你逃跑了！\n");
+	};break;
 	}
-	else {							//战斗失败									
-		difficulty--;				//难度系数降低
-	}
+	system("PAUSE");
 }
 /*战斗中UI*/
-/*战斗胜利则返回1，战斗失败则返回0*/
+/*战斗胜利则返回1，战斗失败则返回-1*/
 int UI_fighting(Entity player, Entity mob) {
 	putchar(10);
 	int i = 0;
@@ -283,6 +292,7 @@ int UI_fighting(Entity player, Entity mob) {
 		}
 		Sleep(500);
 	}
+	Sleep(500);
 	if (player.HP <= 0)				//失败返回值-1
 		return -1;
 	else if (mob.HP <= 0)			//胜利返回值1
@@ -318,8 +328,9 @@ void UI_fightFood(Entity player) {
 }
 /*掉落物*/
 /*以怪物为参数计算掉落物*/
-void UI_gain(Entity mob) {
-
+void UI_gain(Entity* player,Entity mob) {
+	srand((unsigned)time(NULL));
+	int get = 1 + rand() % skillNum;
 }
 
 /*战斗计算*/
