@@ -9,7 +9,7 @@
 
 #define skillNum 4					//实体技能个数
 #define nameLength 20				//名称长度
-#define skillLength 3				//总技能个数
+#define skillLength 5				//总技能个数
 #define M 3							//总药品个数
 
 /*技能结构体定义*/
@@ -30,8 +30,8 @@ typedef struct node {
 }SkillNode, * SkillLink;
 /*药品结构体定义*/
 typedef struct {
-	char name[nameLength]; //药品名字 
-	int effect;  //药品效果，每吃一个加多少生命值 
+	char name[nameLength];		//药品名字 
+	int effect;					//药品效果，每吃一个加多少生命值 
 }Food;
 /*实体结构体定义*/
 typedef struct {
@@ -60,11 +60,12 @@ void SetEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
 Skill CatchSkill(int i);										/*调用技能*/
 void GetSkill(Entity*, int);									/*获取新技能*/
 void next();													/*按任意键下一步*/
+Entity SetMob();												/*随机生成怪物*/
 
 int UnloadSkill(Entity*, int);									/*卸下技能*/
 int LoadSkill(Entity*, int);									/*装配技能*/
 
-int ToInt(char[]);			//字符串类型转换为整型
+int ToInt(char[]);									//字符串类型转换为整型
 
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
@@ -130,9 +131,9 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->HP = i * difficulty * 100;			//血量
 	entity->i = i;								//实体类型
 	InitList(&entity->SkillList);				//初始化技能表
-	updata(&entity->SkillList, 0, CatchSkill(3));
-	updata(&entity->SkillList, 1, CatchSkill(2));
-	updata(&entity->SkillList, 2, CatchSkill(1));
+	updata(&entity->SkillList, 0, CatchSkill(0));
+	updata(&entity->SkillList, 1, CatchSkill(0));
+	updata(&entity->SkillList, 2, CatchSkill(0));
 	updata(&entity->SkillList, 3, CatchSkill(0));
 	entity->OwnSkill = InitListNode();			//初始化已获取技能表
 	entity->NoneSkill = InitListNode();			//初始化未获取技能表
@@ -148,23 +149,7 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 void UI_fight(Entity* player) {
 head:
 	system("CLS");
-	srand((unsigned)time(NULL));
-	int i = rand() % 3 + 1;						//随机生成怪物类型
-	char iname[nameLength];
-	switch (i) {
-	case 1:strcpy_s(iname, "小怪");break;
-	case 2:strcpy_s(iname, "精英");break;
-	case 3:strcpy_s(iname, "首领");break;
-	}
-	printf("你遇到了一个%s！\n", iname);
-	printf("*****************\n");
-	Entity mob;
-	SetEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
-	for (int i = 4;i;i--) {						//随机构建怪物技能表
-		srand((unsigned)time(NULL));
-		int a = 1 + rand() % (skillLength - 1);
-		updata(&mob.SkillList, i - 1, CatchSkill(a));
-	}
+	Entity mob = SetMob();
 	printf("是否开始战斗？\n");
 	printf("Y/N\n");
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
@@ -205,20 +190,20 @@ int UI_fighting(Entity player, Entity mob) {
 		while (true) {
 			scanf_s("%d", &choose);						//控制台输入玩家释放的技能
 			while (getchar() != '\n');
-			if (choose >= 1 && choose <= skillNum+1) {
+			if (choose >= 1 && choose <= skillNum + 1) {
 				break;
 			}
 			else
 				printf("请输入正确的选项！");
 		}
 
-		if (choose == (skillNum+1)) {
+		if (choose == (skillNum + 1)) {
 			char ch[nameLength];
 			int j;
 			for (j = 0;j < M;j++)
 			{
 
-				printf("%d: %s%d个 吃了之后能增加HP%d\n", j+1, player.Food[j].name, player.FoodNum[j], player.Food[j].effect);
+				printf("%d: %s%d个 吃了之后能增加HP%d\n", j + 1, player.Food[j].name, player.FoodNum[j], player.Food[j].effect);
 			}
 			printf("选择你要吃的药品编号\n输入0取消:");
 			while (j = ToInt(gets_s(ch))) {
@@ -228,11 +213,11 @@ int UI_fighting(Entity player, Entity mob) {
 			}
 			if (j >= 1 && j <= M)
 			{
-				if (player.FoodNum[j-1]> 0)
+				if (player.FoodNum[j - 1] > 0)
 				{
-					printf("你吃了一个%s,HP增加了%d", player.Food[j-1].name, player.Food[j-1].effect);
-					player.HP += player.Food[j-1].effect;			//恢复效果
-					player.FoodNum[j-1]--;								//减少次数
+					printf("你吃了一个%s,HP增加了%d", player.Food[j - 1].name, player.Food[j - 1].effect);
+					player.HP += player.Food[j - 1].effect;			//恢复效果
+					player.FoodNum[j - 1]--;								//减少次数
 					if (player.HP > 200)player.HP = 200;			//恢复满
 				}
 				else
@@ -240,7 +225,7 @@ int UI_fighting(Entity player, Entity mob) {
 					printf("你没有这个药品!");
 				}
 			}
-			else if(j==0) {
+			else if (j == 0) {
 				i--;
 			}
 
@@ -402,6 +387,7 @@ int UnloadSkill(Entity* player, int i) {
 	return 0;
 }
 /*装配技能*/
+/*i为已获得技能栏中的第i位*/
 int LoadSkill(Entity* player, int i) {
 	if (i > LengthNode(player->OwnSkill))
 		return -2;									//你没有此技能
@@ -412,6 +398,29 @@ int LoadSkill(Entity* player, int i) {
 		updata(&player->SkillList, j, Delete(player->OwnSkill, i)->data);
 }
 
+/*随机生成怪物*/
+Entity SetMob() {
+	srand((unsigned)time(NULL));				//随机数种子
+	int i = rand() % 3 + 1;						//随机生成怪物类型
+	char iname[nameLength];						//怪物名称
+	switch (i) {
+	case 1:strcpy_s(iname, "小怪");break;
+	case 2:strcpy_s(iname, "精英");break;
+	case 3:strcpy_s(iname, "首领");break;
+	}
+	Entity mob;
+	SetEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
+	for (int i = 0;i < skillNum;i++) {			//随机构建怪物技能表
+		int a = 1 + rand() % (skillLength - 1);
+		GetSkill(&mob, a);
+		LoadSkill(&mob, 1);
+	}
+	for (int i = 0;i < M; i++) {				//随机构建怪物药物表
+		int a = rand() % ((difficulty / 3) + 1);
+		mob.FoodNum[M] = a;
+	}
+}
+
 /*调用技能*/
 Skill CatchSkill(int i) {
 	/*技能列表*/
@@ -420,12 +429,16 @@ Skill CatchSkill(int i) {
 	Skill skill_One{ 1,"撞击",10 };
 	Skill skill_Two{ 2,"大兜子",30 };
 	Skill skill_Three{ 3, "小亮の活",50 };
+	Skill skill_Four{ 4,"五十万",70 };
+	Skill skill_Five{ 5,"鸡汤",90 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
 	case 1:return skill_One;
 	case 2:return skill_Two;
 	case 3:return skill_Three;
+	case 4:return skill_Four;
+	case 5:return skill_Five;
 	default:return skill_ERROR;
 	}
 }
