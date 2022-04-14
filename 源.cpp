@@ -47,6 +47,10 @@ typedef struct {
 
 void UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
+void UI_Jade(Entity player, Entity mob, int i);					/*战斗信息*/
+void UI_fightSkill(Entity player);								/*战斗中技能UI*/
+void UI_fightFood(Entity player);								/*战斗中药品UI*/
+void UI_gain(Entity);											/*掉落物UI*/
 
 void UI_skill(Entity*);											/*技能界面UI*/
 int UI_UnloadSkill(Entity*);									/*卸下技能UI*/
@@ -55,6 +59,8 @@ int UI_LoadSkill(Entity*);										/*装载技能UI*/
 void UI_Food(Entity*);											/*药品界面UI*/
 
 Food CatchFood(int i);											/*调用药品*/
+
+int attack(Entity*, Entity*, int);								/*战斗计算*/
 
 void SetEntity(Entity*, int, char name[nameLength]);			/*初始化实体*/
 Skill CatchSkill(int i);										/*调用技能*/
@@ -131,7 +137,7 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->HP = i * difficulty * 100;			//血量
 	entity->i = i;								//实体类型
 	InitList(&entity->SkillList);				//初始化技能表
-	updata(&entity->SkillList, 0, CatchSkill(0));
+	updata(&entity->SkillList, 0, CatchSkill(4));
 	updata(&entity->SkillList, 1, CatchSkill(0));
 	updata(&entity->SkillList, 2, CatchSkill(0));
 	updata(&entity->SkillList, 3, CatchSkill(0));
@@ -150,12 +156,13 @@ void UI_fight(Entity* player) {
 head:
 	system("CLS");
 	Entity mob = SetMob();
+	printf("你遇到了一个%d级的%s！\n", difficulty, mob.name);
 	printf("是否开始战斗？\n");
 	printf("Y/N\n");
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
 		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
-			break;
+			UI_fighting(*player, mob);
 		else if (ch == 'N' || ch == 'n')
 			goto head;
 		else {
@@ -164,101 +171,164 @@ head:
 		}
 		break;
 	}
-	difficulty += UI_fighting(*player, mob);		//若胜利则难度系数+1，若失败则-1。
+	if (UI_fighting) {				//战斗胜利
+		difficulty++;				//难度系数提升
+		UI_gain(mob);				//掉落物
+	}
+	else {							//战斗失败									
+		difficulty--;				//难度系数降低
+	}
 }
 /*战斗中UI*/
+/*战斗胜利则返回1，战斗失败则返回0*/
 int UI_fighting(Entity player, Entity mob) {
-	system("CLS");
 	putchar(10);
 	int i = 0;
+	char chooseChar[nameLength];
 	int choose;
+	short branch;
+	int playerMaxHp = player.HP;
+	int mobMaxHp = mob.HP;
+	srand((unsigned)time(NULL));
 	while (player.HP > 0 && mob.HP > 0) {
-		i++;//回合计数器
-		system("CLS");
-		printf("***********第%d回合************\n", i);
-		//Sleep(500);
-		printf("%s的生命值剩余%d\n", player.name, player.HP);
-		//Sleep(500);
-		printf("%s的生命值剩余%d\n", mob.name, mob.HP);
-		//Sleep(500);
-		putchar(10);
-		printf("你要做什么？\n");
-		for (int i = 0;i < skillNum;i++) {
-			printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
+		i++;
+	head:
+		UI_Jade(player, mob, i);
+		printf("你要进行什么操作?\n");
+		printf("    1.技能\n");
+		printf("    2.药品\n");
+		printf("    0.逃跑\n");
+		choose = ToInt(gets_s(chooseChar));
+		if (choose == 1) {					//选择技能
+		branch1:
+			UI_Jade(player, mob, i);
+			UI_fightSkill(player);
+			branch = 1;
 		}
-		printf("%d.药品\n", skillNum + 1);
-		while (true) {
-			scanf_s("%d", &choose);						//控制台输入玩家释放的技能
+		else if (choose == 2) {				//选择药品
+		branch2:
+			UI_Jade(player, mob, i);
+			UI_fightFood(player);
+			branch = 2;
+		}
+		else if (choose == 0) {
+			system("CLS");
+			printf("\n确定要逃跑吗？\n输入0确认选择\n");
+			chooseChar[1] = getchar();
 			while (getchar() != '\n');
-			if (choose >= 1 && choose <= skillNum + 1) {
+			if (chooseChar[1] == '0')
 				break;
-			}
 			else
-				printf("请输入正确的选项！");
-		}
-
-		if (choose == (skillNum + 1)) {
-			char ch[nameLength];
-			int j;
-			for (j = 0;j < M;j++)
-			{
-
-				printf("%d: %s%d个 吃了之后能增加HP%d\n", j + 1, player.Food[j].name, player.FoodNum[j], player.Food[j].effect);
-			}
-			printf("选择你要吃的药品编号\n输入0取消:");
-			while (j = ToInt(gets_s(ch))) {
-				if (j != -1)
-					break;
-				printf("请输入正确的选项！\n");
-			}
-			if (j >= 1 && j <= M)
-			{
-				if (player.FoodNum[j - 1] > 0)
-				{
-					printf("你吃了一个%s,HP增加了%d", player.Food[j - 1].name, player.Food[j - 1].effect);
-					player.HP += player.Food[j - 1].effect;			//恢复效果
-					player.FoodNum[j - 1]--;								//减少次数
-					if (player.HP > 200)player.HP = 200;			//恢复满
-				}
-				else
-				{
-					printf("你没有这个药品!");
-				}
-			}
-			else if (j == 0) {
-				i--;
-			}
-
-			Sleep(500);
+				goto head;
 		}
 		else {
-			mob.HP -= player.SkillList.data[choose - 1].atk;
-			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", player.name, player.SkillList.data[choose - 1].name, mob.name, player.SkillList.data[choose - 1].atk, mob.name, mob.HP);
-			Sleep(500);
-			if (mob.HP <= 0)break;
-			srand((unsigned)time(NULL));
-			choose = rand() % skillNum;							//随机数决定敌人释放的技能
-			printf("%d", choose);
-			player.HP -= mob.SkillList.data[choose].atk;
-			printf("%s使用了%s,对%s造成了%d点伤害!\n%s剩余血量%d\n", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
-			Sleep(500);
-			if (player.HP <= 0)break;
-			Sleep(500);
+			printf("\n请输入正确的选项！\n");
+			Sleep(200);
+			goto head;
 		}
+		choose = ToInt(gets_s(chooseChar));
+		if (choose == 0)
+			goto head;
+		else
+			if (branch == 1) {								//选择技能
+				if (choose<1 || choose>skillNum) {			//若输入越界则返回技能列表
+					printf("\n请输入正确的选项！\n");
+					Sleep(200);
+					goto branch1;
+				}
+				printf("\n%s使用了%s,对%s造成了%d的伤害！", player.name, player.SkillList.data[choose - 1].name, mob.name, attack(&player, &mob, choose));
+				if (mob.HP <= 0)break;						//判定胜负
+			}
+			else if (branch == 2) {							//选择药品
+				if (choose<1 || choose>M) {					//若输入越界则返回药品列表
+					printf("\n请输入正确的选项！\n");
+					Sleep(200);
+					goto branch2;
+				}
+				if (player.FoodNum[choose - 1] < 1) {
+					printf("\n当前药品数量不足！\n");
+					Sleep(200);
+					goto branch2;
+				}
+				player.HP += player.Food[choose - 1].effect;	//药品使用效果
+				if (player.HP > playerMaxHp)
+					player.HP = playerMaxHp;
+				player.FoodNum[choose - 1]--;
+				printf("\n%s使用了%s,恢复了%d的生命！\n", player.name, player.Food[choose - 1].name, player.Food[choose - 1].effect);
+			}
+		Sleep(500);
+		if (mob.HP <= mobMaxHp / 2) {
+			for (int j = 0;j < M;j++) {
+				if (mob.FoodNum[j] > 0) {
+					choose = 1 + rand() % 2;		//当怪物拥有药品并且血量到达一半时，将有概率使用药品
+					branch = -1;
+					break;
+				}
+			}
+		}
+		if (branch != -1)							//当怪物不满足上面的条件，则只会使用技能
+			choose = 1;
+		if (choose == 1) {							//当怪物使用技能时
+			choose = 1 + rand() % skillNum;			//随机数决定怪物使用的技能
+			printf("\n%s使用了%s，对%s造成了%d的伤害！\n", mob.name, mob.SkillList.data[choose - 1].name, player.name, attack(&mob, &player, choose));
+			if (player.HP <= 0)break;				//判定胜负
+		}
+		else if (choose == 2) {						//当怪物使用药品时
+			while (choose = 1 + rand() % M)
+				if (mob.FoodNum[choose - 1] > 0)
+					break;
+			mob.HP += mob.Food[choose - 1].effect;
+			mob.FoodNum[choose - 1]--;
+			printf("\n%s使用了%s,恢复了%d的生命！\n", mob.name, mob.Food[choose - 1].name, mob.Food[choose - 1].effect);
+		}
+		Sleep(500);
 	}
-	printf("战斗结束！\n");
-	if (player.HP <= 0) {
-		printf("你失败了！\n");
-		printf("按任意键返回。\n");
-		while (getchar() != '\n');
+	if (player.HP <= 0)				//失败返回值-1
 		return -1;
-	}
-	else {
-		printf("你胜利了！\n");
-		printf("按任意键返回。\n");
-		while (getchar() != '\n');
+	else if (mob.HP <= 0)			//胜利返回值1
 		return 1;
-	}
+	else							//逃跑返回值0
+		return 0;
+}
+/*战斗信息*/
+/*带入战斗双方以及回合数*/
+void UI_Jade(Entity player, Entity mob, int i) {
+	system("CLS");
+	printf("*—————————第%2d回合———————————*\n", i);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", mob.name, difficulty, mob.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10s等级：%-7dHP：%-12d\t |\n", player.name, difficulty, player.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("*————————————————————————*\n\n");
+}
+/*战斗中的技能界面*/
+void UI_fightSkill(Entity player) {
+	printf("你想要使用哪个技能？\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("    %-2d.%-10s伤害：%-10d\n", i + 1, player.SkillList.data[i].name, player.SkillList.data[i].atk);
+	printf("    输入0退出\n\n");
+}
+/*战斗中的药品界面*/
+void UI_fightFood(Entity player) {
+	printf("你想要使用哪个药品？\n");
+	for (int i = 0;i < M;i++)
+		printf("    %-2d.%-10s数量：%-10d治疗量：%-10d\n", i + 1, player.Food[i].name, player.FoodNum[i], player.Food[i].effect);
+	printf("    输入0退出\n\n");
+}
+/*掉落物*/
+/*以怪物为参数计算掉落物*/
+void UI_gain(Entity mob) {
+
+}
+
+/*战斗计算*/
+/*攻击方在前，受击方在后,choose为使用的技能，返回值为造成伤害*/
+int attack(Entity* entity1, Entity* entity2, int choose) {
+	int harm;
+	harm = entity1->SkillList.data[choose - 1].atk;
+	entity2->HP -= harm;
+	return harm;
 }
 
 /*技能界面UI*/
@@ -361,10 +431,8 @@ void UI_Food(Entity* player) {
 	system("CLS");
 	printf("%s\n等级：%d\n", player->name, difficulty);
 	printf("当前药品：\n");
-	for (int i = 0;i < M;i++) {
+	for (int i = 0;i < M;i++)
 		printf("%d.%s\t数量：%d\t治疗量：%d\n", i + 1, player->Food[i].name, player->FoodNum[i], player->Food[i].effect);
-	}
-	getchar();
 }
 
 /*获取技能*/
@@ -411,7 +479,7 @@ Entity SetMob() {
 	Entity mob;
 	SetEntity(&mob, i, iname);					//构建怪物实体并以随机到的类型赋值属性及名称
 	for (int i = 0;i < skillNum;i++) {			//随机构建怪物技能表
-		int a = 1 + rand() % (skillLength - 1);
+		int a = 1 + rand() % (LengthNode(mob.NoneSkill));
 		GetSkill(&mob, a);
 		LoadSkill(&mob, 1);
 	}
@@ -419,6 +487,7 @@ Entity SetMob() {
 		int a = rand() % ((difficulty / 3) + 1);
 		mob.FoodNum[M] = a;
 	}
+	return mob;
 }
 
 /*调用技能*/
