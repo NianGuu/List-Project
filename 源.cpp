@@ -207,14 +207,14 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 		InsertNode(entity->NoneSkill, i + 1, CatchSkill(i + 1));
 	for (int i = 0;i < M;i++) {					//初始化持有的药品
 		entity->Food[i] = CatchFood(i + 1);
-		entity->FoodNum[i] = 1;
+		entity->FoodNum[i] = 0;
 	}
 	entity->Equi.Armour = CatchArmour(0);		//初始化盔甲
 	for (int i = 0;i < armourLength;i++)		//初始化盔甲数量
-		entity->ArmourNum[i] = 1;
+		entity->ArmourNum[i] = 0;
 	entity->Equi.Weapon = CatchWeapon(0);		//初始化武器
 	for (int i = 0;i < weaponLength;i++)		//初始化武器数量
-		entity->WeaponNum[i] = 1;
+		entity->WeaponNum[i] = 0;
 	entity->Gold = 0;							//初始化金币
 	entity->ATK = 0;							//初始化攻击力
 	entity->DEF = 0;							//初始化防御力
@@ -375,6 +375,8 @@ int UI_fighting(Entity player, Entity mob) {
 				if (mob.FoodNum[choose - 1] > 0)
 					break;
 			mob.HP += mob.Food[choose - 1].effect;
+			if (mob.HP > mobMaxHp)
+				mob.HP = mobMaxHp;
 			mob.FoodNum[choose - 1]--;
 			printf("\n%s使用了%s,恢复了%d的生命！\n", mob.name, mob.Food[choose - 1].name, mob.Food[choose - 1].effect);
 		}
