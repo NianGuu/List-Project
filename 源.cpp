@@ -87,6 +87,8 @@ void UI_WeaponInfo(Entity);										/*武器信息UI*/
 void UI_ArmourInfo(Entity);										/*盔甲信息UI*/
 
 void UI_Shop(Entity*);											/*商店界面UI*/
+void UI_ShopInfo(Entity player);								/*商店信息UI*/
+void UI_ShopMenu();												/*商品菜单UI*/
 
 void UI_Food(Entity*);											/*药品界面UI*/
 
@@ -126,8 +128,6 @@ int LocateNode(SkillLink, Skill);				//已知值查找序号
 SkillLink GetElem(SkillLink, int);				//已知序号查找值
 
 int difficulty = 1;		/*难度系数*/
-
-
 
 int main() {
 	Entity player;
@@ -178,10 +178,11 @@ int main() {
   当i为3时，实体为首领类型*/
 void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	strcpy_s(entity->name, name);				//名称
-	entity->HP = i * difficulty * 100;			//血量
+	/*血量*/
+	entity->HP = 100 * difficulty + difficulty * i * 50;
 	entity->i = i;								//实体类型
 	InitList(&entity->SkillList);				//初始化技能表
-	updata(&entity->SkillList, 0, CatchSkill(0));
+	updata(&entity->SkillList, 0, CatchSkill(-1));
 	updata(&entity->SkillList, 1, CatchSkill(0));
 	updata(&entity->SkillList, 2, CatchSkill(0));
 	updata(&entity->SkillList, 3, CatchSkill(0));
@@ -390,9 +391,12 @@ void UI_gain(Entity* player, Entity mob) {
 		GetSkill(player, LocateNode(player->NoneSkill, mob.SkillList.data[get - 1]));
 		printf("\n你获得了技能：%s！\n", mob.SkillList.data[get - 1].name);
 	}
-	else
-		printf("\n你已有技能：%s！\n", mob.SkillList.data[get - 1].name);
-
+	else {
+		player->Gold += mob.SkillList.data[get - 1].atk;
+		printf("\n你已有技能：%s！已转化为%d金币\n", mob.SkillList.data[get - 1].name, mob.SkillList.data[get - 1].atk);
+	}
+	player->Gold += mob.Gold;					//获取怪物的金币
+	printf("\n你获得了%d金币！\n", mob.Gold);
 }
 
 /*战斗计算*/
@@ -601,7 +605,34 @@ void UI_ArmourInfo(Entity player) {
 
 /*商店界面UI*/
 void UI_Shop(Entity* player) {
-
+	UI_ShopInfo(*player);
+	getchar();
+}
+/*商店信息UI*/
+void UI_ShopInfo(Entity player) {
+	system("CLS");
+	printf("\n余额：%d\n",player.Gold);
+	printf("#|*********************************|#\n");
+	printf("#|！！！战士伤害高 烈火刀刀爆！！！|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|！！！法师控制强 冰霜秒全场！！！|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|！！！道士十五狗 全区横着走！！！|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|！！！散人打金服 零氪能爽爆！！！|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|！！！现金秒到账 装备能回收！！！|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|！！！挂机能打宝 就在真传奇！！！|#\n");
+	printf("#|*********************************|#\n");
+	UI_ShopMenu();
+}
+/*商店列表UI*/
+void UI_ShopMenu() {
+	printf("\n你想要购买什么？\n");
+	printf("\n1.属性\n");
+	printf("\n2.装备\n");
+	printf("\n3.药品\n");
 }
 
 /*装备武器*/
@@ -697,6 +728,9 @@ Entity SetMob() {
 		int a = rand() % ((difficulty / 3) + 1);
 		mob.FoodNum[M] = a;
 	}
+	mob.DEF = difficulty * 5 + rand() % difficulty * 10;					//随机生成怪物防御力
+	mob.ATK = difficulty * 5 + rand() % difficulty * 10;					//随机生成怪物攻击力
+	mob.Gold= difficulty * 5 + rand() % difficulty * 10;					//随机生成怪物携带金币
 	return mob;
 }
 
@@ -773,7 +807,7 @@ Armour CatchArmour(int i) {
 
 /*按任意键下一步*/
 void next() {
-	printf("按任意键进行下一步\n");
+	printf("\n按任意键进行下一步\n");
 	while (getchar() != '\n');
 }
 
@@ -868,7 +902,7 @@ SkillLink Delete(SkillLink head, int i) {
 /*已知值查找序号*/
 int LocateNode(SkillLink head, Skill x) {
 	int i = 0;
-	while (head) {
+	while (head->next) {
 		head = head->next;
 		i++;
 		if (head->data.ID == x.ID)
