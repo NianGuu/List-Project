@@ -74,7 +74,7 @@ typedef struct {
 	int i;								//实体类型 
 }Entity;
 
-void UI_fight(Entity*);											/*战斗界面UI*/
+int UI_fight(Entity*);											/*战斗界面UI*/
 int UI_fighting(Entity, Entity);								/*战斗中UI*/
 void UI_Jade(Entity player, Entity mob, int i);					/*战斗信息*/
 void UI_fightSkill(Entity player);								/*战斗中技能UI*/
@@ -221,7 +221,7 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 }
 
 /*战斗界面UI*/
-void UI_fight(Entity* player) {
+int UI_fight(Entity* player) {
 head:
 	system("CLS");
 	Entity mob = SetMob();
@@ -230,18 +230,14 @@ head:
 	printf("...........................................\n\n");
 	printf("!!!\n");
 	printf("\n是否开始战斗？\n");
-	printf("\nY/N  (输入Y开始，N返回)\n\n");
+	printf("\nY/N  (输入Y开始，N返回,其余则刷新敌人)\n\n");
 	while (char ch = getchar()) {					//让玩家选择是否战斗，是则继续，否则跳转至子函数开头
 		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
 			break;
 		else if (ch == 'N' || ch == 'n')
-			goto head;
-		else {
-			printf("请输入正确的选项！\n");
-			continue;
-		}
-		break;
+			return 0;
+		else goto head;
 	}
 	int result = UI_fighting(*player, mob);
 	system("CLS");
@@ -268,7 +264,8 @@ head:
 		printf("\n你逃跑了！\n");
 	};break;
 	}
-	system("PAUSE");
+	next();
+	return 0;
 }
 /*战斗中UI*/
 /*战斗胜利则返回1，战斗失败则返回-1*/
@@ -429,8 +426,8 @@ void UI_gain(Entity* player, Entity mob) {
 		printf("\n你获得了技能：%s！\n", mob.SkillList.data[get - 1].name);
 	}
 	else {
-		player->Gold += mob.SkillList.data[get - 1].atk;
-		printf("\n你已有技能：%s！已转化为%d金币\n", mob.SkillList.data[get - 1].name, mob.SkillList.data[get - 1].atk);
+		player->Gold += mob.SkillList.data[get - 1].atk * 10;
+		printf("\n你已有技能：%s！已转化为%d金币\n", mob.SkillList.data[get - 1].name, mob.SkillList.data[get - 1].atk * 10);
 	}
 	player->Gold += mob.Gold;					//获取怪物的金币
 	printf("\n$$$$$$$$$$$$$$$$$$$$$$$$$");
@@ -444,7 +441,7 @@ void UI_gain(Entity* player, Entity mob) {
 /*攻击方在前，受击方在后,choose为使用的技能，返回值为造成伤害*/
 int attack(Entity* entity1, Entity* entity2, int choose) {
 	int harm;
-	harm = entity1->SkillList.data[choose - 1].atk+(entity1->ATK/10)*entity1->SkillList.data[choose-1].atk-(entity2->DEF/20)*entity1->SkillList.data[choose-1].atk;
+	harm = entity1->SkillList.data[choose - 1].atk + (entity1->ATK / 10) * entity1->SkillList.data[choose - 1].atk - (entity2->DEF / 20) * entity1->SkillList.data[choose - 1].atk;
 	if (harm <= 0)
 		harm = 1;
 	entity2->HP -= harm;
@@ -991,7 +988,7 @@ Entity SetMob() {
 	mob.HP *= (difficulty / 2.0);
 	mob.DEF = (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);					//随机生成怪物防御力
 	mob.ATK = (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);					//随机生成怪物攻击力
-	mob.Gold = (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);				//随机生成怪物携带金币
+	mob.Gold = 10 * (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);				//随机生成怪物携带金币
 	return mob;
 }
 
@@ -1020,9 +1017,9 @@ Skill CatchSkill(int i) {
 Food CatchFood(int i) {
 	/*药品列表*/
 	Food food_ERROR{ "ERROR",-114514,-1 };
-	Food food_One{ "金疮药",200 ,1000 };
-	Food food_Two{ "大力丸",400 ,2000 };
-	Food food_Three{ "续命丸",600 ,4000 };
+	Food food_One{ "金疮药",200 ,100 };
+	Food food_Two{ "大力丸",400 ,200 };
+	Food food_Three{ "续命丸",600 ,400 };
 	/*药品返回*/
 	switch (i) {
 	case 1:return food_One;
