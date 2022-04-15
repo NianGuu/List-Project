@@ -136,7 +136,7 @@ SkillLink Delete(SkillLink, int);				//删除
 int LocateNode(SkillLink, Skill);				//已知值查找序号
 SkillLink GetElem(SkillLink, int);				//已知序号查找值
 
-int difficulty = 10;		/*难度系数*/
+int difficulty = 1;		/*难度系数*/
 
 int main() {
 	Entity player;
@@ -215,7 +215,7 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	entity->Equi.Weapon = CatchWeapon(0);		//初始化武器
 	for (int i = 0;i < weaponLength;i++)		//初始化武器数量
 		entity->WeaponNum[i] = 1;
-	entity->Gold = 10000;							//初始化金币
+	entity->Gold = 0;							//初始化金币
 	entity->ATK = 0;							//初始化攻击力
 	entity->DEF = 0;							//初始化防御力
 }
