@@ -985,10 +985,10 @@ Entity SetMob() {
 		int a = rand() % ((difficulty / 3) + 1);
 		mob.FoodNum[M] = a;
 	}
-	mob.HP *= (difficulty / 2.0);
-	mob.DEF = (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);					//随机生成怪物防御力
-	mob.ATK = (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);					//随机生成怪物攻击力
-	mob.Gold = 10 * (difficulty * 5 + rand() % difficulty * 10) * (difficulty / 2.0);				//随机生成怪物携带金币
+	mob.HP *= (i / 2.0);
+	mob.DEF = (difficulty * 5 + rand() % difficulty * 10) * (i / 2.0);					//随机生成怪物防御力
+	mob.ATK = (difficulty * 5 + rand() % difficulty * 10) * (i / 2.0);					//随机生成怪物攻击力
+	mob.Gold = 10 * (difficulty * 5 + rand() % difficulty * 10) * (i / 2.0);				//随机生成怪物携带金币
 	return mob;
 }
 
