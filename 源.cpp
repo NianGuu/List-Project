@@ -5,100 +5,152 @@
 #include<time.h>
 #include<math.h> 
 
-#define ERR_SKILL_LIST_EXCEED -1	//¼¼ÄÜ±íÔ½½ç
+#define ERR_SKILL_LIST_EXCEED -1	//æŠ€èƒ½è¡¨è¶Šç•Œ
 
-#define skillNum 4					//ÊµÌå¼¼ÄÜ¸öÊı
-#define nameLength 20				//Ãû³Æ³¤¶È
-#define skillLength 3				//×Ü¼¼ÄÜ¸öÊı
-#define M 3
+#define skillNum 4					//å®ä½“æŠ€èƒ½ä¸ªæ•°
+#define nameLength 20				//åç§°é•¿åº¦
+#define skillLength 5				//æ€»æŠ€èƒ½ä¸ªæ•°
+#define M 3							//æ€»è¯å“ä¸ªæ•°
+#define weaponLength 3				//æ€»æ­¦å™¨ä¸ªæ•°
+#define armourLength 3				//æ€»ç›”ç”²ä¸ªæ•°
 
-/*¼¼ÄÜ½á¹¹Ìå¶¨Òå*/
+/*æŠ€èƒ½ç»“æ„ä½“å®šä¹‰*/
 typedef struct {
-	short ID;						//¼¼ÄÜID
-	char name[nameLength];			//¼¼ÄÜÃû³Æ
-	int atk;						//¼¼ÄÜÉËº¦
+	short ID;						//æŠ€èƒ½ID
+	char name[nameLength];			//æŠ€èƒ½åç§°
+	int atk;						//æŠ€èƒ½ä¼¤å®³
 }Skill;
-/*¼¼ÄÜ±íË³Ğò±í¶¨Òå*/
+/*æŠ€èƒ½è¡¨é¡ºåºè¡¨å®šä¹‰*/
 typedef struct {
-	Skill data[skillNum];			//¼¼ÄÜ±íÖĞËùº¬¼¼ÄÜÊı×é
-	int length;						//¼¼ÄÜ±í³¤¶È
+	Skill data[skillNum];			//æŠ€èƒ½è¡¨ä¸­æ‰€å«æŠ€èƒ½æ•°ç»„
+	int length;						//æŠ€èƒ½è¡¨é•¿åº¦
 }SkillList;
-/*Î´»ñÈ¡¼¼ÄÜ±í½áµã¶¨Òå*/
+/*æœªè·å–æŠ€èƒ½è¡¨ç»“ç‚¹å®šä¹‰*/
 typedef struct node {
 	Skill data;
 	struct node* next;
 }SkillNode, * SkillLink;
-/*ÊµÌå½á¹¹Ìå¶¨Òå*/
+/*è¯å“ç»“æ„ä½“å®šä¹‰*/
 typedef struct {
-	char name[nameLength];		//ÊµÌåÃû³Æ
-	int HP;						//ÊµÌåÉúÃüÖµ
-	SkillList SkillList;		//ÊµÌåËù´ø¼¼ÄÜ±í
-	SkillLink OwnSkill;			//ÊµÌåÒÑÓµÓĞ¼¼ÄÜ±í
-	SkillLink NoneSkill;		//ÊµÌåÎ´»ñµÃ¼¼ÄÜ±í
-	int i;						//ÊµÌåÀàĞÍ 
+	char name[nameLength];		//è¯å“åå­— 
+	int effect;					//è¯å“æ•ˆæœï¼Œæ¯åƒä¸€ä¸ªåŠ å¤šå°‘ç”Ÿå‘½å€¼ 
+}Food;
+/*æ­¦å™¨ç»“æ„ä½“å®šä¹‰*/
+typedef struct {
+	int ID;						//æ­¦å™¨ID
+	char name[nameLength];		//æ­¦å™¨åç§°
+	int ATK;					//æ­¦å™¨æ”»å‡»åŠ›
+}Weapon;
+/*ç›”ç”²ç»“æ„ä½“å®šä¹‰*/
+typedef struct {
+	int ID;						//ç›”ç”²ID
+	char name[nameLength];		//ç›”ç”²åç§°
+	int DEF;					//ç›”ç”²é˜²å¾¡åŠ›
+}Armour;
+/*è£…å¤‡ç»“æ„ä½“å®šä¹‰*/
+typedef struct {
+	Weapon Weapon;				//æ­¦å™¨
+	Armour Armour;				//ç›”ç”²
+}Equi;
+/*å®ä½“ç»“æ„ä½“å®šä¹‰*/
+typedef struct {
+	char name[nameLength];				//å®ä½“åç§°
+	int HP;								//å®ä½“ç”Ÿå‘½å€¼
+	int ATK;							//å®ä½“æ”»å‡»åŠ›
+	int DEF;							//å®ä½“é˜²å¾¡åŠ›
+	Equi Equi;							//å®ä½“æºå¸¦è£…å¤‡
+	int WeaponNum[weaponLength];		//å®ä½“æºå¸¦æ­¦å™¨ä¸ªæ•°
+	int ArmourNum[armourLength];		//å®ä½“æºå¸¦ç›”ç”²ä¸ªæ•°
+	int Gold;							//å®ä½“æºå¸¦é‡‘å¸
+	SkillList SkillList;				//å®ä½“æ‰€å¸¦æŠ€èƒ½è¡¨
+	SkillLink OwnSkill;					//å®ä½“å·²æ‹¥æœ‰æŠ€èƒ½è¡¨
+	SkillLink NoneSkill;				//å®ä½“æœªè·å¾—æŠ€èƒ½è¡¨
+	Food Food[M];						//å®ä½“æŒæœ‰çš„è¯å“
+	int FoodNum[M];						//å®ä½“æŒæœ‰çš„è¯å“æ•°é‡
+	int i;								//å®ä½“ç±»å‹ 
 }Entity;
-struct food //¶¨ÒåÒ©Æ·½á¹¹ÌåÀàĞÍ 
-{
-	char name[20]; //Ò©Æ·Ãû×Ö 
-	int count;  //Ò©Æ·ÊıÁ¿ 
-	int effect;  //Ò©Æ·Ğ§¹û£¬Ã¿³ÔÒ»¸ö¼Ó¶àÉÙÉúÃüÖµ 
-}fd[M];
 
-void UI_fight(Entity*);											/*Õ½¶·½çÃæUI*/
-int UI_fighting(Entity, Entity);								/*Õ½¶·ÖĞUI*/
-void UI_skill(Entity*);											/*¼¼ÄÜ½çÃæUI*/
-int UI_UnloadSkill(Entity*);									/*Ğ¶ÏÂ¼¼ÄÜUI*/
-int UI_LoadSkill(Entity*);										/*×°ÔØ¼¼ÄÜUI*/
+void UI_fight(Entity*);											/*æˆ˜æ–—ç•Œé¢UI*/
+int UI_fighting(Entity, Entity);								/*æˆ˜æ–—ä¸­UI*/
+void UI_Jade(Entity player, Entity mob, int i);					/*æˆ˜æ–—ä¿¡æ¯*/
+void UI_fightSkill(Entity player);								/*æˆ˜æ–—ä¸­æŠ€èƒ½UI*/
+void UI_fightFood(Entity player);								/*æˆ˜æ–—ä¸­è¯å“UI*/
+void UI_gain(Entity*, Entity);									/*æ‰è½ç‰©UI*/
 
-void init();
+void UI_skill(Entity*);											/*æŠ€èƒ½ç•Œé¢UI*/
+int UI_UnloadSkill(Entity*);									/*å¸ä¸‹æŠ€èƒ½UI*/
+int UI_LoadSkill(Entity*);										/*è£…è½½æŠ€èƒ½UI*/
 
-void SetEntity(Entity*, int, char name[nameLength]);			/*³õÊ¼»¯ÊµÌå*/
-Skill CatchSkill(int i);										/*µ÷ÓÃ¼¼ÄÜ*/
-void GetSkill(Entity*, int);									/*»ñÈ¡ĞÂ¼¼ÄÜ*/
-void next();													/*°´ÈÎÒâ¼üÏÂÒ»²½*/
+void UI_Equi(Entity*);											/*è£…å¤‡ç•Œé¢UI*/
+void UI_EquiInfo(Entity);										/*è£…å¤‡ä¿¡æ¯UI*/
+void UI_WeaponInfo(Entity);										/*æ­¦å™¨ä¿¡æ¯UI*/
+void UI_ArmourInfo(Entity);										/*ç›”ç”²ä¿¡æ¯UI*/
 
-int UnloadSkill(Entity*, int);									/*Ğ¶ÏÂ¼¼ÄÜ*/
-int LoadSkill(Entity*, int);									/*×°Åä¼¼ÄÜ*/
+void UI_Shop(Entity*);											/*å•†åº—ç•Œé¢UI*/
+void UI_ShopInfo(Entity player);								/*å•†åº—ä¿¡æ¯UI*/
+void UI_ShopMenu();												/*å•†å“èœå•UI*/
 
-int ToInt(char[]);			//×Ö·û´®ÀàĞÍ×ª»»ÎªÕûĞÍ
+void UI_Food(Entity*);											/*è¯å“ç•Œé¢UI*/
 
-/*Ë³Ğò±í²Ù×÷¼¯*/
-void InitList(SkillList*);							//½¨¿Õ±í
-int Length(SkillList);								//Çó±í³¤
-void updata(SkillList*, int, Skill);				//ĞŞ¸ÄÊı¾İ
-int Locate(SkillList, Skill);						//ÒÑÖªÖµÇóÏÂ±ê
+int LoadWeapon(Entity*, int);									/*è£…å¤‡æ­¦å™¨*/
+int LoadArmour(Entity*, int);									/*è£…å¤‡ç›”ç”²*/
 
-/*µ¥Á´±í²Ù×÷¼¯*/
-SkillLink InitListNode();						//³õÊ¼»¯µ¥Á´±í
-void InsertNode(SkillLink, int, Skill);			//²åÈëµ¥Á´±í
-int LengthNode(SkillLink);						//Çó±í³¤
-void Traversal(SkillLink);						//±éÀú
-SkillLink Delete(SkillLink, int);				//É¾³ı
-int LocateNode(SkillLink, Skill);				//ÒÑÖªÖµ²éÕÒĞòºÅ
-SkillLink GetElem(SkillLink, int);				//ÒÑÖªĞòºÅ²éÕÒÖµ
+Skill CatchSkill(int i);										/*è°ƒç”¨æŠ€èƒ½*/
+Food CatchFood(int i);											/*è°ƒç”¨è¯å“*/
+Weapon CatchWeapon(int i);										/*è°ƒç”¨æ­¦å™¨*/
+Armour CatchArmour(int i);										/*è°ƒç”¨ç›”ç”²*/
 
-int difficulty = 1;		/*ÄÑ¶ÈÏµÊı*/
+int attack(Entity*, Entity*, int);								/*æˆ˜æ–—è®¡ç®—*/
 
+void SetEntity(Entity*, int, char name[nameLength]);			/*åˆå§‹åŒ–å®ä½“*/
+void GetSkill(Entity*, int);									/*è·å–æ–°æŠ€èƒ½*/
+void next();													/*æŒ‰ä»»æ„é”®ä¸‹ä¸€æ­¥*/
+Entity SetMob();												/*éšæœºç”Ÿæˆæ€ªç‰©*/
 
+int UnloadSkill(Entity*, int);									/*å¸ä¸‹æŠ€èƒ½*/
+int LoadSkill(Entity*, int);									/*è£…é…æŠ€èƒ½*/
+
+int ToInt32(char[]);									//å­—ç¬¦ä¸²ç±»å‹è½¬æ¢ä¸ºæ•´å‹
+
+/*é¡ºåºè¡¨æ“ä½œé›†*/
+void InitList(SkillList*);							//å»ºç©ºè¡¨
+int Length(SkillList);								//æ±‚è¡¨é•¿
+void updata(SkillList*, int, Skill);				//ä¿®æ”¹æ•°æ®
+int Locate(SkillList, Skill);						//å·²çŸ¥å€¼æ±‚ä¸‹æ ‡
+
+/*å•é“¾è¡¨æ“ä½œé›†*/
+SkillLink InitListNode();						//åˆå§‹åŒ–å•é“¾è¡¨
+void InsertNode(SkillLink, int, Skill);			//æ’å…¥å•é“¾è¡¨
+int LengthNode(SkillLink);						//æ±‚è¡¨é•¿
+void Traversal(SkillLink);						//éå†
+SkillLink Delete(SkillLink, int);				//åˆ é™¤
+int LocateNode(SkillLink, Skill);				//å·²çŸ¥å€¼æŸ¥æ‰¾åºå·
+SkillLink GetElem(SkillLink, int);				//å·²çŸ¥åºå·æŸ¥æ‰¾å€¼
+
+int difficulty = 1;		/*éš¾åº¦ç³»æ•°*/
 
 int main() {
 	Entity player;
 	char name[nameLength];
-	printf("»¶Ó­½øÈëÓÎÏ·\n");
+	printf("æ¬¢è¿è¿›å…¥æ¸¸æˆ\n");
 	printf("***********\n");
-	printf("ÇëÊäÈëÄúµÄÃû³Æ\n");
+	printf("è¯·è¾“å…¥æ‚¨çš„åç§°\n");
 	putchar('\n');
 	gets_s(name);
 	SetEntity(&player, 2, name);
+	GetSkill(&player, 1);
+	LoadSkill(&player, 1);
 	while (true) {
 		system("CLS");
-		puts(player.name);
-		printf("µÈ¼¶£º%d\n", difficulty);
-		printf("ÇëÊäÈëÄãµÄ²Ù×÷£º\n");
-		printf("*************************\n");
-		printf("1.Õ½¶·\n");
-		printf("2.¼¼ÄÜ\n");
-		printf("0.ÍË³ö\n");
+		printf("%s\nç­‰çº§ï¼š%d\né‡‘å¸ï¼š%d\n", player.name, difficulty, player.Gold);
+		printf("â€”â€”â€”â€”â€”â€”\n");
+		printf("è¯·è¾“å…¥ä½ çš„æ“ä½œï¼š\n");
+		printf("1.æˆ˜æ–—\n");
+		printf("2.æŠ€èƒ½\n");
+		printf("3.è¯å“\n");
+		printf("4.è£…å¤‡\n");
+		printf("5.å•†åº—\n");
+		printf("0.é€€å‡º\n");
 		char choose;
 		choose = getchar();
 		while (getchar() != '\n');
@@ -106,183 +158,272 @@ int main() {
 			UI_fight(&player);
 		else if (choose == '2')
 			UI_skill(&player);
+		else if (choose == '3')
+			UI_Food(&player);
+		else if (choose == '4')
+			UI_Equi(&player);
+		else if (choose == '5')
+			UI_Shop(&player);
 		else if (choose == '0')
 			return 0;
 		else {
-			printf("ÇëÊäÈëÕıÈ·µÄÑ¡Ïî£¡\n");
+			printf("è¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
 			Sleep(1000);
 		}
 	}
 }
-/*³õÊ¼»¯ÊµÌå*/
-/*µ±iÎª1Ê±£¬ÊµÌåÎªĞ¡¹ÖÀàĞÍ
-  µ±iÎª2Ê±£¬ÊµÌåÎª¾«Ó¢ÀàĞÍ
-  µ±iÎª3Ê±£¬ÊµÌåÎªÊ×ÁìÀàĞÍ*/
+/*åˆå§‹åŒ–å®ä½“*/
+/*å½“iä¸º1æ—¶ï¼Œå®ä½“ä¸ºå°æ€ªç±»å‹
+  å½“iä¸º2æ—¶ï¼Œå®ä½“ä¸ºç²¾è‹±ç±»å‹
+  å½“iä¸º3æ—¶ï¼Œå®ä½“ä¸ºé¦–é¢†ç±»å‹*/
 void SetEntity(Entity* entity, int i, char name[nameLength]) {
-	strcpy_s(entity->name, name);				//Ãû³Æ
-	entity->HP = i * difficulty * 100;			//ÑªÁ¿
-	entity->i = i;								//ÊµÌåÀàĞÍ
-	InitList(&entity->SkillList);				//³õÊ¼»¯¼¼ÄÜ±í
-	updata(&entity->SkillList, 0, CatchSkill(3));
-	updata(&entity->SkillList, 1, CatchSkill(2));
-	updata(&entity->SkillList, 2, CatchSkill(1));
-	updata(&entity->SkillList, 3, CatchSkill(4));
-	entity->OwnSkill = InitListNode();			//³õÊ¼»¯ÒÑ»ñÈ¡¼¼ÄÜ±í
-	entity->NoneSkill = InitListNode();			//³õÊ¼»¯Î´»ñÈ¡¼¼ÄÜ±í
+	strcpy_s(entity->name, name);				//åç§°
+	/*è¡€é‡*/
+	entity->HP = 100 * difficulty + difficulty * i * 50;
+	entity->i = i;								//å®ä½“ç±»å‹
+	InitList(&entity->SkillList);				//åˆå§‹åŒ–æŠ€èƒ½è¡¨
+	updata(&entity->SkillList, 0, CatchSkill(-1));
+	updata(&entity->SkillList, 1, CatchSkill(0));
+	updata(&entity->SkillList, 2, CatchSkill(0));
+	updata(&entity->SkillList, 3, CatchSkill(0));
+	entity->OwnSkill = InitListNode();			//åˆå§‹åŒ–å·²è·å–æŠ€èƒ½è¡¨
+	entity->NoneSkill = InitListNode();			//åˆå§‹åŒ–æœªè·å–æŠ€èƒ½è¡¨
 	for (int i = 0;i < skillLength;i++)
 		InsertNode(entity->NoneSkill, i + 1, CatchSkill(i + 1));
-}
-
-void init()										//ÉèÖÃÒ©Æ·Ãû×Ö£¬Ê¹ÓÃ´ÎÊı
-{
-	int i;
-	char name[M][20] = { "½ğ´¯Ò©","´óÁ¦Íè","ĞøÃüÍè" };		//Ãû×Ö
-	srand(time(NULL));
-	for (i = 0;i < M;i++)
-	{
-		strcpy_s(fd[i].name, name[i]);
-		fd[i].count = 1;									//´ÎÊı
-		fd[i].effect = i + 1;								//Ğ§¹û
+	for (int i = 0;i < M;i++) {					//åˆå§‹åŒ–æŒæœ‰çš„è¯å“
+		entity->Food[i] = CatchFood(i + 1);
+		entity->FoodNum[i] = 1;
 	}
+	entity->Equi.Armour = CatchArmour(0);		//åˆå§‹åŒ–ç›”ç”²
+	for (int i = 0;i < armourLength;i++)		//åˆå§‹åŒ–ç›”ç”²æ•°é‡
+		entity->ArmourNum[i] = 1;
+	entity->Equi.Weapon = CatchWeapon(0);		//åˆå§‹åŒ–æ­¦å™¨
+	for (int i = 0;i < weaponLength;i++)		//åˆå§‹åŒ–æ­¦å™¨æ•°é‡
+		entity->WeaponNum[i] = 1;
+	entity->Gold = 0;							//åˆå§‹åŒ–é‡‘å¸
+	entity->ATK = 0;							//åˆå§‹åŒ–æ”»å‡»åŠ›
+	entity->DEF = 0;							//åˆå§‹åŒ–é˜²å¾¡åŠ›
 }
 
-/*Õ½¶·½çÃæUI*/
+/*æˆ˜æ–—ç•Œé¢UI*/
 void UI_fight(Entity* player) {
 head:
 	system("CLS");
-	srand((unsigned)time(NULL));
-	int i = rand() % 3 + 1;						//Ëæ»úÉú³É¹ÖÎïÀàĞÍ
-	char iname[nameLength];
-	switch (i) {
-	case 1:strcpy_s(iname, "Ğ¡¹Ö");break;
-	case 2:strcpy_s(iname, "¾«Ó¢");break;
-	case 3:strcpy_s(iname, "Ê×Áì");break;
-	}
-	printf("ÄãÓöµ½ÁËÒ»¸ö%s£¡\n", iname);
-	printf("*****************\n");
-	Entity mob;
-	SetEntity(&mob, i, iname);					//¹¹½¨¹ÖÎïÊµÌå²¢ÒÔËæ»úµ½µÄÀàĞÍ¸³ÖµÊôĞÔ¼°Ãû³Æ
-	for (int i = 4;i;i--) {						//Ëæ»ú¹¹½¨¹ÖÎï¼¼ÄÜ±í
-		srand((unsigned)time(NULL));
-		int a = 1 + rand() % (skillLength - 1);
-		updata(&mob.SkillList, i - 1, CatchSkill(a));
-	}
-	printf("ÊÇ·ñ¿ªÊ¼Õ½¶·£¿\n");
+	Entity mob = SetMob();
+	printf("ä½ é‡åˆ°äº†ä¸€ä¸ª%dçº§çš„%sï¼\n", difficulty, mob.name);
+	printf("æ˜¯å¦å¼€å§‹æˆ˜æ–—ï¼Ÿ\n");
 	printf("Y/N\n");
-	while (char ch = getchar()) {					//ÈÃÍæ¼ÒÑ¡ÔñÊÇ·ñÕ½¶·£¬ÊÇÔò¼ÌĞø£¬·ñÔòÌø×ªÖÁ×Óº¯Êı¿ªÍ·
+	while (char ch = getchar()) {					//è®©ç©å®¶é€‰æ‹©æ˜¯å¦æˆ˜æ–—ï¼Œæ˜¯åˆ™ç»§ç»­ï¼Œå¦åˆ™è·³è½¬è‡³å­å‡½æ•°å¼€å¤´
 		while (getchar() != '\n');
 		if (ch == 'Y' || ch == 'y')
 			break;
 		else if (ch == 'N' || ch == 'n')
 			goto head;
 		else {
-			printf("ÇëÊäÈëÕıÈ·µÄÑ¡Ïî£¡\n");
+			printf("è¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
 			continue;
 		}
 		break;
 	}
-	difficulty += UI_fighting(*player, mob);		//ÈôÊ¤ÀûÔòÄÑ¶ÈÏµÊı+1£¬ÈôÊ§°ÜÔò-1¡£
-}
-/*Õ½¶·ÖĞUI*/
-int UI_fighting(Entity player, Entity mob) {
+	int result = UI_fighting(*player, mob);
 	system("CLS");
+	switch (result) {
+	case -1: {			//æˆ˜æ–—å¤±è´¥
+		printf("\næˆ˜æ–—å¤±è´¥ï¼\n");
+		difficulty--;
+	};break;
+	case 1: {			//æˆ˜æ–—èƒœåˆ©
+		printf("\næˆ˜æ–—èƒœåˆ©ï¼\n");
+		difficulty++;
+		UI_gain(player, mob);
+	};break;
+	case 0: {			//é€ƒè·‘
+		printf("\nä½ é€ƒè·‘äº†ï¼\n");
+	};break;
+	}
+	system("PAUSE");
+}
+/*æˆ˜æ–—ä¸­UI*/
+/*æˆ˜æ–—èƒœåˆ©åˆ™è¿”å›1ï¼Œæˆ˜æ–—å¤±è´¥åˆ™è¿”å›-1*/
+int UI_fighting(Entity player, Entity mob) {
 	putchar(10);
 	int i = 0;
+	char chooseChar[nameLength];
 	int choose;
+	short branch;
+	int playerMaxHp = player.HP;
+	int mobMaxHp = mob.HP;
+	srand((unsigned)time(NULL));
 	while (player.HP > 0 && mob.HP > 0) {
-		i++;//»ØºÏ¼ÆÊıÆ÷
-		system("CLS");
-		printf("***********µÚ%d»ØºÏ************\n", i);
-		//Sleep(500);
-		printf("%sµÄÉúÃüÖµÊ£Óà%d\n", player.name, player.HP);
-		//Sleep(500);
-		printf("%sµÄÉúÃüÖµÊ£Óà%d\n", mob.name, mob.HP);
-		//Sleep(500);
-		putchar(10);
-		printf("ÄãÒª×öÊ²Ã´£¿\n");
-		for (int i = 0;i < skillNum;i++) {
-			printf("%d.%s\n", i + 1, player.SkillList.data[i].name);
+		i++;
+	head:
+		UI_Jade(player, mob, i);
+		printf("ä½ è¦è¿›è¡Œä»€ä¹ˆæ“ä½œ?\n");
+		printf("    1.æŠ€èƒ½\n");
+		printf("    2.è¯å“\n");
+		printf("    0.é€ƒè·‘\n");
+		choose = ToInt32(gets_s(chooseChar));
+		if (choose == 1) {					//é€‰æ‹©æŠ€èƒ½
+		branch1:
+			UI_Jade(player, mob, i);
+			UI_fightSkill(player);
+			branch = 1;
 		}
-		while (true) {
-			scanf_s("%d", &choose);						//¿ØÖÆÌ¨ÊäÈëÍæ¼ÒÊÍ·ÅµÄ¼¼ÄÜ
+		else if (choose == 2) {				//é€‰æ‹©è¯å“
+		branch2:
+			UI_Jade(player, mob, i);
+			UI_fightFood(player);
+			branch = 2;
+		}
+		else if (choose == 0) {
+			system("CLS");
+			printf("\nç¡®å®šè¦é€ƒè·‘å—ï¼Ÿ\nè¾“å…¥0ç¡®è®¤é€‰æ‹©\n");
+			chooseChar[1] = getchar();
 			while (getchar() != '\n');
-			if (choose >= 1 && choose <= skillNum) {
+			if (chooseChar[1] == '0')
 				break;
-			}
 			else
-				printf("ÇëÊäÈëÕıÈ·µÄÑ¡Ïî£¡");
-		}
-		init();
-		if (choose==4) {
-			int i;
-			for (i = 0;i < M;i++)
-			{
-
-				printf("%d: %s%d¸ö ³ÔÁËÖ®ºóÄÜÔö¼ÓHP%d\n", i, fd[i].name, fd[i].count, (fd[i].effect) * 20);
-			}
-			printf("Ñ¡ÔñÄãÒª³ÔµÄÒ©Æ·±àºÅ(-1È¡Ïû):");
-			scanf_s("%d", &i);			//ÊäÈëÊ¹ÓÃÄÄ¸öÒ©Æ·
-			if (i >= 0 && i < M)
-			{
-				if (fd[i].count > 0)	
-				{
-					printf("Äã³ÔÁËÒ»¸ö%s,HPÔö¼ÓÁË%d", fd[i].name, (fd[i].effect) * 20);	
-					player.HP += (fd[i].effect) * 20;			//»Ö¸´Ğ§¹û
-					fd[i].count--;								//¼õÉÙ´ÎÊı
-					if (player.HP > 200)player.HP = 200;			//»Ö¸´Âú
-				}
-				else
-				{
-					printf("ÄãÃ»ÓĞÕâ¸öÒ©Æ·!");
-				}
-			}
-			Sleep(500);
+				goto head;
 		}
 		else {
-			mob.HP -= player.SkillList.data[choose - 1].atk;
-			printf("%sÊ¹ÓÃÁË%s,¶Ô%sÔì³ÉÁË%dµãÉËº¦!\n%sÊ£ÓàÑªÁ¿%d\n", player.name, player.SkillList.data[choose - 1].name, mob.name, player.SkillList.data[choose - 1].atk, mob.name, mob.HP);
-			Sleep(500);
-			if (mob.HP <= 0)break;
-			srand((unsigned)time(NULL));
-			choose = rand() % skillNum;							//Ëæ»úÊı¾ö¶¨µĞÈËÊÍ·ÅµÄ¼¼ÄÜ
-			printf("%d", choose);
-			player.HP -= mob.SkillList.data[choose].atk;
-			printf("%sÊ¹ÓÃÁË%s,¶Ô%sÔì³ÉÁË%dµãÉËº¦!\n%sÊ£ÓàÑªÁ¿%d\n", mob.name, mob.SkillList.data[choose].name, player.name, mob.SkillList.data[choose].atk, player.name, player.HP);
-			Sleep(500);
-			if (player.HP <= 0)break;
-			Sleep(500);
+			printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
+			Sleep(200);
+			goto head;
 		}
+		choose = ToInt32(gets_s(chooseChar));
+		if (choose == 0)
+			goto head;
+		else
+			if (branch == 1) {								//é€‰æ‹©æŠ€èƒ½
+				if (choose<1 || choose>skillNum) {			//è‹¥è¾“å…¥è¶Šç•Œåˆ™è¿”å›æŠ€èƒ½åˆ—è¡¨
+					printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
+					Sleep(200);
+					goto branch1;
+				}
+				printf("\n%sä½¿ç”¨äº†%s,å¯¹%sé€ æˆäº†%dçš„ä¼¤å®³ï¼", player.name, player.SkillList.data[choose - 1].name, mob.name, attack(&player, &mob, choose));
+				if (mob.HP <= 0)break;						//åˆ¤å®šèƒœè´Ÿ
+			}
+			else if (branch == 2) {							//é€‰æ‹©è¯å“
+				if (choose<1 || choose>M) {					//è‹¥è¾“å…¥è¶Šç•Œåˆ™è¿”å›è¯å“åˆ—è¡¨
+					printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
+					Sleep(200);
+					goto branch2;
+				}
+				if (player.FoodNum[choose - 1] < 1) {
+					printf("\nå½“å‰è¯å“æ•°é‡ä¸è¶³ï¼\n");
+					Sleep(200);
+					goto branch2;
+				}
+				player.HP += player.Food[choose - 1].effect;	//è¯å“ä½¿ç”¨æ•ˆæœ
+				if (player.HP > playerMaxHp)
+					player.HP = playerMaxHp;
+				player.FoodNum[choose - 1]--;
+				printf("\n%sä½¿ç”¨äº†%s,æ¢å¤äº†%dçš„ç”Ÿå‘½ï¼\n", player.name, player.Food[choose - 1].name, player.Food[choose - 1].effect);
+			}
+		Sleep(500);
+		if (mob.HP <= mobMaxHp / 2) {
+			for (int j = 0;j < M;j++) {
+				if (mob.FoodNum[j] > 0) {
+					choose = 1 + rand() % 2;		//å½“æ€ªç‰©æ‹¥æœ‰è¯å“å¹¶ä¸”è¡€é‡åˆ°è¾¾ä¸€åŠæ—¶ï¼Œå°†æœ‰æ¦‚ç‡ä½¿ç”¨è¯å“
+					branch = -1;
+					break;
+				}
+			}
+		}
+		if (branch != -1)							//å½“æ€ªç‰©ä¸æ»¡è¶³ä¸Šé¢çš„æ¡ä»¶ï¼Œåˆ™åªä¼šä½¿ç”¨æŠ€èƒ½
+			choose = 1;
+		if (choose == 1) {							//å½“æ€ªç‰©ä½¿ç”¨æŠ€èƒ½æ—¶
+			choose = 1 + rand() % skillNum;			//éšæœºæ•°å†³å®šæ€ªç‰©ä½¿ç”¨çš„æŠ€èƒ½
+			printf("\n%sä½¿ç”¨äº†%sï¼Œå¯¹%sé€ æˆäº†%dçš„ä¼¤å®³ï¼\n", mob.name, mob.SkillList.data[choose - 1].name, player.name, attack(&mob, &player, choose));
+			if (player.HP <= 0)break;				//åˆ¤å®šèƒœè´Ÿ
+		}
+		else if (choose == 2) {						//å½“æ€ªç‰©ä½¿ç”¨è¯å“æ—¶
+			while (choose = 1 + rand() % M)
+				if (mob.FoodNum[choose - 1] > 0)
+					break;
+			mob.HP += mob.Food[choose - 1].effect;
+			mob.FoodNum[choose - 1]--;
+			printf("\n%sä½¿ç”¨äº†%s,æ¢å¤äº†%dçš„ç”Ÿå‘½ï¼\n", mob.name, mob.Food[choose - 1].name, mob.Food[choose - 1].effect);
+		}
+		Sleep(500);
 	}
-	printf("Õ½¶·½áÊø£¡\n");
-	if (player.HP <= 0) {
-		printf("ÄãÊ§°ÜÁË£¡\n");
-		printf("°´ÈÎÒâ¼ü·µ»Ø¡£\n");
-		while (getchar() != '\n');
+	Sleep(500);
+	if (player.HP <= 0)				//å¤±è´¥è¿”å›å€¼-1
 		return -1;
+	else if (mob.HP <= 0)			//èƒœåˆ©è¿”å›å€¼1
+		return 1;
+	else							//é€ƒè·‘è¿”å›å€¼0
+		return 0;
+}
+/*æˆ˜æ–—ä¿¡æ¯*/
+/*å¸¦å…¥æˆ˜æ–—åŒæ–¹ä»¥åŠå›åˆæ•°*/
+void UI_Jade(Entity player, Entity mob, int i) {
+	system("CLS");
+	printf("*â€”â€”â€”â€”â€”â€”â€”â€”â€”ç¬¬%2då›åˆâ€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”*\n", i);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10sç­‰çº§ï¼š%-7dHPï¼š%-12d\t |\n", mob.name, difficulty, mob.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("|\t%-10sç­‰çº§ï¼š%-7dHPï¼š%-12d\t |\n", player.name, difficulty, player.HP);
+	printf("|\t\t\t\t\t\t |\n");
+	printf("*â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”*\n\n");
+}
+/*æˆ˜æ–—ä¸­çš„æŠ€èƒ½ç•Œé¢*/
+void UI_fightSkill(Entity player) {
+	printf("ä½ æƒ³è¦ä½¿ç”¨å“ªä¸ªæŠ€èƒ½ï¼Ÿ\n");
+	for (int i = 0;i < skillNum;i++)
+		printf("    %-2d.%-10sä¼¤å®³ï¼š%-10d\n", i + 1, player.SkillList.data[i].name, player.SkillList.data[i].atk);
+	printf("    è¾“å…¥0é€€å‡º\n\n");
+}
+/*æˆ˜æ–—ä¸­çš„è¯å“ç•Œé¢*/
+void UI_fightFood(Entity player) {
+	printf("ä½ æƒ³è¦ä½¿ç”¨å“ªä¸ªè¯å“ï¼Ÿ\n");
+	for (int i = 0;i < M;i++)
+		printf("    %-2d.%-10sæ•°é‡ï¼š%-10dæ²»ç–—é‡ï¼š%-10d\n", i + 1, player.Food[i].name, player.FoodNum[i], player.Food[i].effect);
+	printf("    è¾“å…¥0é€€å‡º\n\n");
+}
+/*æ‰è½ç‰©*/
+/*ä»¥æ€ªç‰©ä¸ºå‚æ•°è®¡ç®—æ‰è½ç‰©*/
+void UI_gain(Entity* player, Entity mob) {
+	srand((unsigned)time(NULL));
+
+	int get = 1 + rand() % skillNum;			//éšæœºæ•°å†³å®šæ‰è½æ€ªç‰©çš„å“ªä¸ªæŠ€èƒ½
+	if (LocateNode(player->NoneSkill, mob.SkillList.data[get - 1]) != -1) {
+		GetSkill(player, LocateNode(player->NoneSkill, mob.SkillList.data[get - 1]));
+		printf("\nä½ è·å¾—äº†æŠ€èƒ½ï¼š%sï¼\n", mob.SkillList.data[get - 1].name);
 	}
 	else {
-		printf("ÄãÊ¤ÀûÁË£¡\n");
-		printf("°´ÈÎÒâ¼ü·µ»Ø¡£\n");
-		while (getchar() != '\n');
-		return 1;
+		player->Gold += mob.SkillList.data[get - 1].atk;
+		printf("\nä½ å·²æœ‰æŠ€èƒ½ï¼š%sï¼å·²è½¬åŒ–ä¸º%dé‡‘å¸\n", mob.SkillList.data[get - 1].name, mob.SkillList.data[get - 1].atk);
 	}
+	player->Gold += mob.Gold;					//è·å–æ€ªç‰©çš„é‡‘å¸
+	printf("\nä½ è·å¾—äº†%dé‡‘å¸ï¼\n", mob.Gold);
 }
 
-/*¼¼ÄÜ½çÃæUI*/
+/*æˆ˜æ–—è®¡ç®—*/
+/*æ”»å‡»æ–¹åœ¨å‰ï¼Œå—å‡»æ–¹åœ¨å,chooseä¸ºä½¿ç”¨çš„æŠ€èƒ½ï¼Œè¿”å›å€¼ä¸ºé€ æˆä¼¤å®³*/
+int attack(Entity* entity1, Entity* entity2, int choose) {
+	int harm;
+	harm = entity1->SkillList.data[choose - 1].atk;
+	entity2->HP -= harm;
+	return harm;
+}
+
+/*æŠ€èƒ½ç•Œé¢UI*/
 void UI_skill(Entity* player) {
 head:
 	system("CLS");
-	printf("%s\nµÈ¼¶£º%d\n", player->name, difficulty);
-	printf("µ±Ç°¼¼ÄÜ£º\n");
+	printf("%s\nç­‰çº§ï¼š%d\né‡‘å¸ï¼š%d\n", player->name, difficulty, player->Gold);
+	printf("â€”â€”â€”â€”â€”â€”\n");
+	printf("å½“å‰æŠ€èƒ½ï¼š\n");
 	for (int i = 0;i < skillNum;i++)
 		printf("%d.%s\n", i + 1, player->SkillList.data[i].name);
-	printf("\nÒÑÓµÓĞµÄ¼¼ÄÜ£º\n");
+	printf("\nå·²æ‹¥æœ‰çš„æŠ€èƒ½ï¼š\n");
 	Traversal(player->OwnSkill);
-	printf("\nÇëÊäÈë²Ù×÷£º\n");
-	printf("1.²é¿´Î´ÓµÓĞ¼¼ÄÜ\n");
-	printf("2.Ğ¶ÏÂ¼¼ÄÜ\n");
-	printf("3.×°ÔØ¼¼ÄÜ\n");
-	printf("0.ÍË³ö\n");
+	printf("\nè¯·è¾“å…¥æ“ä½œï¼š\n");
+	printf("1.æŸ¥çœ‹æœªæ‹¥æœ‰æŠ€èƒ½\n");
+	printf("2.å¸ä¸‹æŠ€èƒ½\n");
+	printf("3.è£…è½½æŠ€èƒ½\n");
+	printf("0.é€€å‡º\n");
 	putchar(10);
 	while (char i = getchar()) {
 		while (getchar() != '\n');
@@ -296,7 +437,7 @@ head:
 		case '2':UI_UnloadSkill(player);goto head;
 		case '3':UI_LoadSkill(player);goto head;
 		default: {
-			printf("ÇëÊäÈëÕıÈ·µÄÑ¡Ïî£¡\n");
+			printf("è¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
 			Sleep(300);
 			goto head;
 		}
@@ -304,138 +445,386 @@ head:
 		break;
 	}
 }
-/*Ğ¶ÏÂ¼¼ÄÜUI*/
+/*å¸ä¸‹æŠ€èƒ½UI*/
 int UI_UnloadSkill(Entity* player) {
 	char i[nameLength];
 	int num = -1;
 head:
 	system("CLS");
-	printf("µ±Ç°¼¼ÄÜ£º\n");
+	printf("å½“å‰æŠ€èƒ½ï¼š\n");
 	for (int i = 0;i < skillNum;i++)
 		printf("%d.%s\n", i + 1, player->SkillList.data[i].name);
-	printf("\nÒÑÓµÓĞµÄ¼¼ÄÜ£º\n");
+	printf("\nå·²æ‹¥æœ‰çš„æŠ€èƒ½ï¼š\n");
 	Traversal(player->OwnSkill);
-	printf("\nÇëÑ¡ÔñÄãÒªĞ¶ÏÂµÄ¼¼ÄÜ(1-4)\nÊäÈë0ÍË³ö\n");
-	num = ToInt(gets_s(i));
+	printf("\nè¯·é€‰æ‹©ä½ è¦å¸ä¸‹çš„æŠ€èƒ½(1-4)\nè¾“å…¥0é€€å‡º\n");
+	num = ToInt32(gets_s(i));
 	if (num == 0)
 		return 0;
 	if (num == -1) {
-		printf("ÇëÊäÈëÕıÈ·µÄ¼¼ÄÜÀ¸(1-4)!\n");
+		printf("è¯·è¾“å…¥æ­£ç¡®çš„æŠ€èƒ½æ (1-4)!\n");
 		Sleep(300);
 		goto head;
 	}
 	int j = UnloadSkill(player, num);
 	switch (j) {
-	case -1:printf("´ËÎ»ÖÃÎŞ¼¼ÄÜ£¬Ğ¶ÏÂÊ§°Ü£¡\n");break;
-	case -2:printf("ÇëÊäÈëÕıÈ·µÄ¼¼ÄÜÀ¸£¡");break;
-	default:printf("ÒÑ½«%dÎ»ÉÏµÄ¼¼ÄÜĞ¶ÏÂ£¡\n", num);break;
+	case -1:printf("æ­¤ä½ç½®æ— æŠ€èƒ½ï¼Œå¸ä¸‹å¤±è´¥ï¼\n");break;
+	case -2:printf("è¯·è¾“å…¥æ­£ç¡®çš„æŠ€èƒ½æ ï¼");break;
+	default:printf("å·²å°†%dä½ä¸Šçš„æŠ€èƒ½å¸ä¸‹ï¼\n", num);break;
 	}
 	Sleep(300);
 	goto head;
 }
-/*×°ÔØ¼¼ÄÜUI*/
+/*è£…è½½æŠ€èƒ½UI*/
 int UI_LoadSkill(Entity* player) {
 	char i[nameLength];
 	int num;
 head:
 	system("CLS");
-	printf("µ±Ç°¼¼ÄÜ£º\n");
+	printf("å½“å‰æŠ€èƒ½ï¼š\n");
 	for (int i = 0;i < skillNum;i++)
 		printf("%d.%s\n", i + 1, player->SkillList.data[i].name);
-	printf("\nÒÑÓµÓĞµÄ¼¼ÄÜ£º\n");
+	printf("\nå·²æ‹¥æœ‰çš„æŠ€èƒ½ï¼š\n");
 	Traversal(player->OwnSkill);
-	printf("ÇëÊäÈëÄãÒª×°ÔØµÄ¼¼ÄÜ£º\nÊäÈë0ÍË³ö\n");
-	num = ToInt(gets_s(i));
+	printf("è¯·è¾“å…¥ä½ è¦è£…è½½çš„æŠ€èƒ½ï¼š\nè¾“å…¥0é€€å‡º\n");
+	num = ToInt32(gets_s(i));
 	if (num == 0)
 		return 0;
 	if (num == -1) {
-		printf("ÇëÊäÈëÕıÈ·µÄ¼¼ÄÜ´úÂë!\n");
+		printf("è¯·è¾“å…¥æ­£ç¡®çš„æŠ€èƒ½ä»£ç !\n");
 		Sleep(300);
 		goto head;
 	}
 	int j = LoadSkill(player, num);
 	switch (j) {
-	case 0:printf("ÒÑ³É¹¦×°Åä¼¼ÄÜ£¡");break;
-	case -1:printf("¼¼ÄÜÀ¸ÒÑÂú£¬ÎŞ·¨×°Åä£¡\n");break;
-	case -2:printf("ÄãÃ»ÓĞ´Ë¼¼ÄÜ£¬ÇëÊäÈëÕıÈ·µÄ¼¼ÄÜ£¡\n");break;
+	case 0:printf("å·²æˆåŠŸè£…é…æŠ€èƒ½ï¼");break;
+	case -1:printf("æŠ€èƒ½æ å·²æ»¡ï¼Œæ— æ³•è£…é…ï¼\n");break;
+	case -2:printf("ä½ æ²¡æœ‰æ­¤æŠ€èƒ½ï¼Œè¯·è¾“å…¥æ­£ç¡®çš„æŠ€èƒ½ï¼\n");break;
 	}
 	Sleep(300);
 	goto head;
 }
 
-/*»ñÈ¡¼¼ÄÜ*/
-///iµÄÖµÎªplayerÎ´»ñµÃ¼¼ÄÜ±íÖĞµÄµÚiÎ»
-///¼´½«playerÎ´»ñµÃ¼¼ÄÜ±íÖĞµÄµÚiÎ»É¾³ı²¢²åÈëplayerÒÑ»ñµÃ¼¼ÄÜ±íÖĞµÄµÚÒ»Î»
+/*è¯å“ç•Œé¢UI*/
+void UI_Food(Entity* player) {
+	system("CLS");
+	printf("%s\nç­‰çº§ï¼š%d\né‡‘å¸ï¼š%d\n", player->name, difficulty, player->Gold);
+	printf("â€”â€”â€”â€”â€”â€”\n");
+	printf("å½“å‰è¯å“ï¼š\n");
+	for (int i = 0;i < M;i++)
+		printf("%d.%s\tæ•°é‡ï¼š%d\tæ²»ç–—é‡ï¼š%d\n", i + 1, player->Food[i].name, player->FoodNum[i], player->Food[i].effect);
+}
+
+/*è£…å¤‡ç•Œé¢UI*/
+void UI_Equi(Entity* player) {
+	char chooseChar[nameLength];
+	int choose;
+head:
+	UI_EquiInfo(*player);
+	printf("\nä½ è¦åšä»€ä¹ˆï¼Ÿ\n");
+	printf("1.  æ­¦å™¨\n");
+	printf("2.  ç›”ç”²\n");
+	choose = ToInt32(gets_s(chooseChar));
+	switch (choose) {
+	case 1: {
+	Weaponhead:
+		while (1) {
+			UI_EquiInfo(*player);
+			UI_WeaponInfo(*player);
+			printf("\nè¯·è¾“å…¥ä½ è¦è£…å¤‡çš„æ­¦å™¨ï¼š\nè¾“å…¥0å¯è¿”å›\n");
+			choose = ToInt32(gets_s(chooseChar));
+			if (choose > 0 && choose < weaponLength + 1)break;
+			else if (choose == -1) {
+				printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
+				Sleep(300);
+				continue;
+			}
+			else goto head;
+		}
+		switch (LoadWeapon(player, choose)) {
+		case -2: {
+			printf("\nä½ æ²¡æœ‰è¯¥æ­¦å™¨ï¼\n");
+			Sleep(300);
+			goto Weaponhead;
+		}
+		default: {
+			printf("\nå·²æˆåŠŸè£…å¤‡%s!\n", CatchWeapon(choose).name);
+			Sleep(300);
+			goto head;
+		}
+		}
+	};break;
+	case 2: {
+	Armourhead:
+		while (1) {
+			UI_EquiInfo(*player);
+			UI_ArmourInfo(*player);
+			printf("\nè¯·è¾“å…¥ä½ è¦è£…å¤‡çš„ç›”ç”²ï¼š\nè¾“å…¥0å¯è¿”å›\n");
+			choose = ToInt32(gets_s(chooseChar));
+			if (choose > 0 && choose < weaponLength + 1)break;
+			else if (choose == -1) {
+				printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");
+				Sleep(300);
+				continue;
+			}
+			else goto head;
+		}
+		switch (LoadArmour(player, choose)) {
+		case -2: {
+			printf("\nä½ æ²¡æœ‰è¯¥ç›”ç”²ï¼\n");
+			Sleep(300);
+			goto Weaponhead;
+		}
+		default: {
+			printf("\nå·²æˆåŠŸè£…å¤‡%s!\n", CatchArmour(choose).name);
+			Sleep(300);
+			goto head;
+		}
+		}
+	};break;
+	default:printf("\nè¯·è¾“å…¥æ­£ç¡®çš„é€‰é¡¹ï¼\n");goto head;
+	}
+}
+/*è£…å¤‡ä¿¡æ¯UI*/
+void UI_EquiInfo(Entity player) {
+	system("CLS");
+	printf("%s\nç­‰çº§ï¼š%d\né‡‘å¸ï¼š%d\n", player.name, difficulty, player.Gold);
+	printf("â€”â€”â€”â€”â€”â€”\n");
+	printf("æ­¦å™¨ï¼š%-20sæ”»å‡»åŠ›ï¼š%-10d\n", player.Equi.Weapon.name, player.Equi.Weapon.ATK);
+	printf("ç›”ç”²ï¼š%-20sé˜²å¾¡åŠ›ï¼š%-10d\n", player.Equi.Armour.name, player.Equi.Armour.DEF);
+}
+/*æ­¦å™¨ä¿¡æ¯UI*/
+void UI_WeaponInfo(Entity player) {
+	for (int i = 0;i < weaponLength;i++)
+		printf("\n%d.%-20sæ•°é‡ï¼š%-10dæ”»å‡»åŠ›ï¼š%-10d\n", i + 1, CatchWeapon(i + 1).name, player.WeaponNum[i], CatchWeapon(i + 1).ATK);
+}
+/*ç›”ç”²ä¿¡æ¯UI*/
+void UI_ArmourInfo(Entity player) {
+	for (int i = 0;i < armourLength;i++)
+		printf("\n%d.%-20sæ•°é‡ï¼š%-10dé˜²å¾¡åŠ›ï¼š%-10d\n", i + 1, CatchArmour(i + 1).name, player.ArmourNum[i], CatchArmour(i + 1).DEF);
+}
+
+/*å•†åº—ç•Œé¢UI*/
+void UI_Shop(Entity* player) {
+	UI_ShopInfo(*player);
+	getchar();
+}
+/*å•†åº—ä¿¡æ¯UI*/
+void UI_ShopInfo(Entity player) {
+	system("CLS");
+	printf("\nä½™é¢ï¼š%d\n",player.Gold);
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼æˆ˜å£«ä¼¤å®³é«˜ çƒˆç«åˆ€åˆ€çˆ†ï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼æ³•å¸ˆæ§åˆ¶å¼º å†°éœœç§’å…¨åœºï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼é“å£«åäº”ç‹— å…¨åŒºæ¨ªç€èµ°ï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼æ•£äººæ‰“é‡‘æœ é›¶æ°ªèƒ½çˆ½çˆ†ï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼ç°é‡‘ç§’åˆ°è´¦ è£…å¤‡èƒ½å›æ”¶ï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	printf("#|ï¼ï¼ï¼æŒ‚æœºèƒ½æ‰“å® å°±åœ¨çœŸä¼ å¥‡ï¼ï¼ï¼|#\n");
+	printf("#|*********************************|#\n");
+	UI_ShopMenu();
+}
+/*å•†åº—åˆ—è¡¨UI*/
+void UI_ShopMenu() {
+	printf("\nä½ æƒ³è¦è´­ä¹°ä»€ä¹ˆï¼Ÿ\n");
+	printf("\n1.å±æ€§\n");
+	printf("\n2.è£…å¤‡\n");
+	printf("\n3.è¯å“\n");
+}
+
+/*è£…å¤‡æ­¦å™¨*/
+/*æ•°é‡ä¸è¶³åˆ™è¿”å›-2*/
+int LoadWeapon(Entity* player, int i) {
+	if (player->WeaponNum[i - 1] == 0)
+		return -2;
+	if (player->Equi.Weapon.ID != 0) {
+		int inum;
+		for (int j = 0;j < weaponLength;j++)
+			if (player->Equi.Weapon.ID == CatchWeapon(j + 1).ID)
+				inum = j;
+		player->Equi.Weapon = CatchWeapon(i);
+		player->WeaponNum[i - 1]--;
+		player->WeaponNum[inum]++;
+		return 0;
+	}
+	else {
+		player->Equi.Weapon = CatchWeapon(i);
+		player->WeaponNum[i - 1]--;
+		return 0;
+	}
+}
+/*è£…å¤‡ç›”ç”²*/
+/*æ•°é‡ä¸è¶³åˆ™è¿”å›-2*/
+int LoadArmour(Entity* player, int i) {
+	if (player->ArmourNum[i - 1] == 0)
+		return -2;
+	if (player->Equi.Armour.ID != 0) {
+		int inum;
+		for (int j = 0;j < armourLength;j++)
+			if (player->Equi.Armour.ID == CatchArmour(j + 1).ID)
+				inum = j;
+		player->Equi.Armour = CatchArmour(i);
+		player->ArmourNum[i - 1]--;
+		player->ArmourNum[inum]++;
+		return 0;
+	}
+	player->Equi.Armour = CatchArmour(i);
+	player->ArmourNum[i - 1]--;
+	return 0;
+}
+
+/*è·å–æŠ€èƒ½*/
+///içš„å€¼ä¸ºplayeræœªè·å¾—æŠ€èƒ½è¡¨ä¸­çš„ç¬¬iä½
+///å³å°†playeræœªè·å¾—æŠ€èƒ½è¡¨ä¸­çš„ç¬¬iä½åˆ é™¤å¹¶æ’å…¥playerå·²è·å¾—æŠ€èƒ½è¡¨ä¸­çš„ç¬¬ä¸€ä½
 void GetSkill(Entity* player, int i) {
 	if (LengthNode(player->NoneSkill) >= 1) {
 		InsertNode(player->OwnSkill, 1, Delete(player->NoneSkill, i)->data);
 	}
 
 }
-/*Ğ¶ÏÂ¼¼ÄÜ*/
+/*å¸ä¸‹æŠ€èƒ½*/
 int UnloadSkill(Entity* player, int i) {
 	if (i<1 || i>skillNum)
-		return -2;												//Ğ¶ÏÂÎ»ÖÃÔ½½ç
+		return -2;												//å¸ä¸‹ä½ç½®è¶Šç•Œ
 	if (player->SkillList.data[i - 1].ID == CatchSkill(0).ID)
-		return -1;												//´Ë¼¼ÄÜÎª¿Õ£¬ÎŞ·¨Ğ¶ÏÂ
+		return -1;												//æ­¤æŠ€èƒ½ä¸ºç©ºï¼Œæ— æ³•å¸ä¸‹
 	InsertNode(player->OwnSkill, 1, player->SkillList.data[i - 1]);
 	updata(&player->SkillList, i - 1, CatchSkill(0));
 	return 0;
 }
-/*×°Åä¼¼ÄÜ*/
+/*è£…é…æŠ€èƒ½*/
+/*iä¸ºå·²è·å¾—æŠ€èƒ½æ ä¸­çš„ç¬¬iä½*/
 int LoadSkill(Entity* player, int i) {
 	if (i > LengthNode(player->OwnSkill))
-		return -2;									//ÄãÃ»ÓĞ´Ë¼¼ÄÜ
+		return -2;									//ä½ æ²¡æœ‰æ­¤æŠ€èƒ½
 	int j = Locate(player->SkillList, CatchSkill(0));
 	if (j == -1)
-		return -1;									//¼¼ÄÜÀ¸ÒÑÂú
+		return -1;									//æŠ€èƒ½æ å·²æ»¡
 	else
 		updata(&player->SkillList, j, Delete(player->OwnSkill, i)->data);
 }
 
-/*µ÷ÓÃ¼¼ÄÜ*/
+/*éšæœºç”Ÿæˆæ€ªç‰©*/
+Entity SetMob() {
+	srand((unsigned)time(NULL));				//éšæœºæ•°ç§å­
+	int i = rand() % 3 + 1;						//éšæœºç”Ÿæˆæ€ªç‰©ç±»å‹
+	char iname[nameLength];						//æ€ªç‰©åç§°
+	switch (i) {
+	case 1:strcpy_s(iname, "å°æ€ª");break;
+	case 2:strcpy_s(iname, "ç²¾è‹±");break;
+	case 3:strcpy_s(iname, "é¦–é¢†");break;
+	}
+	Entity mob;
+	SetEntity(&mob, i, iname);					//æ„å»ºæ€ªç‰©å®ä½“å¹¶ä»¥éšæœºåˆ°çš„ç±»å‹èµ‹å€¼å±æ€§åŠåç§°
+	for (int i = 0;i < skillNum;i++) {			//éšæœºæ„å»ºæ€ªç‰©æŠ€èƒ½è¡¨
+		int a = 1 + rand() % (LengthNode(mob.NoneSkill));
+		GetSkill(&mob, a);
+		LoadSkill(&mob, 1);
+	}
+	for (int i = 0;i < M; i++) {				//éšæœºæ„å»ºæ€ªç‰©è¯ç‰©è¡¨
+		int a = rand() % ((difficulty / 3) + 1);
+		mob.FoodNum[M] = a;
+	}
+	mob.DEF = difficulty * 5 + rand() % difficulty * 10;					//éšæœºç”Ÿæˆæ€ªç‰©é˜²å¾¡åŠ›
+	mob.ATK = difficulty * 5 + rand() % difficulty * 10;					//éšæœºç”Ÿæˆæ€ªç‰©æ”»å‡»åŠ›
+	mob.Gold= difficulty * 5 + rand() % difficulty * 10;					//éšæœºç”Ÿæˆæ€ªç‰©æºå¸¦é‡‘å¸
+	return mob;
+}
+
+/*è°ƒç”¨æŠ€èƒ½*/
 Skill CatchSkill(int i) {
-	/*¼¼ÄÜÁĞ±í*/
-	Skill skill_ERROR{ -1,"ERROR",-114514 };
+	/*æŠ€èƒ½åˆ—è¡¨*/
+	Skill skill_ERROR{ -1,"ERROR",114514 };
 	Skill skill_Null{ 0, "NULL",0 };
-	Skill skill_One{ 1,"×²»÷",10 };
-	Skill skill_Two{ 2,"´ó¶µ×Ó",30 };
-	Skill skill_Three{ 3, "Ğ¡ÁÁ¤Î»î",50 };
-	Skill skill_Four{ 4, "Ò©Æ·",0 };
-	/*º¯Êı·µ»Ø*/
+	Skill skill_One{ 1,"æ’å‡»",10 };
+	Skill skill_Two{ 2,"å¤§å…œå­",30 };
+	Skill skill_Three{ 3, "å°äº®ã®æ´»",50 };
+	Skill skill_Four{ 4,"äº”åä¸‡",70 };
+	Skill skill_Five{ 5,"é¸¡æ±¤",90 };
+	/*å‡½æ•°è¿”å›*/
 	switch (i) {
 	case 0:return skill_Null;
 	case 1:return skill_One;
 	case 2:return skill_Two;
 	case 3:return skill_Three;
 	case 4:return skill_Four;
+	case 5:return skill_Five;
 	default:return skill_ERROR;
 	}
 }
+/*è°ƒç”¨è¯å“*/
+Food CatchFood(int i) {
+	/*è¯å“åˆ—è¡¨*/
+	Food food_ERROR{ "ERROR",-114514 };
+	Food food_One{ "é‡‘ç–®è¯",20 };
+	Food food_Two{ "å¤§åŠ›ä¸¸",40 };
+	Food food_Three{ "ç»­å‘½ä¸¸",60 };
+	/*è¯å“è¿”å›*/
+	switch (i) {
+	case 1:return food_One;
+	case 2:return food_Two;
+	case 3:return food_Three;
+	default:return food_ERROR;
+	}
+}
+/*è°ƒç”¨æ­¦å™¨*/
+Weapon CatchWeapon(int i) {
+	/*æ­¦å™¨åˆ—è¡¨*/
+	Weapon weapon_ERROR{ -1,"ERROR",-114514 };
+	Weapon weapon_Null{ 0,"NULL",0 };
+	Weapon weapon_One{ 1,"åšå¼ˆå¤±è´¥æå‡ºç™½å¤ª",10 };
+	Weapon weapon_Two{ 2,"æˆ‘æŒ¯ä»–æƒŠé›·å•Š",20 };
+	Weapon weapon_Three{ 3,"å¥½æŒ¯ä¸‹ä¸€æŠŠ",30 };
+	/*æ­¦å™¨è¿”å›*/
+	switch (i) {
+	case 0:return weapon_Null;
+	case 1:return weapon_One;
+	case 2:return weapon_Two;
+	case 3:return weapon_Three;
+	default:return weapon_ERROR;
+	}
+}
+/*è°ƒç”¨ç›”ç”²*/
+Armour CatchArmour(int i) {
+	/*ç›”ç”²åˆ—è¡¨*/
+	Armour armour_ERROR{ -1,"ERROR",-114514 };
+	Armour armour_Null{ 0,"NULL",0 };
+	Armour armour_One{ 1,"å­™æ‚Ÿç©ºçš„æˆæ³•",10 };
+	Armour armour_Two{ 2,"å°¹å¨œçš„å¹»èº«",20 };
+	Armour armour_Three{ 3,"å¾¡å®…èŠ±ç»‡",30 };
+	/*ç›”ç”²è¿”å›*/
+	switch (i) {
+	case 0:return armour_Null;
+	case 1:return armour_One;
+	case 2:return armour_Two;
+	case 3:return armour_Three;
+	default:return armour_ERROR;
+	}
+}
 
-
-
-
-/*°´ÈÎÒâ¼üÏÂÒ»²½*/
+/*æŒ‰ä»»æ„é”®ä¸‹ä¸€æ­¥*/
 void next() {
-	printf("°´ÈÎÒâ¼ü½øĞĞÏÂÒ»²½\n");
+	printf("\næŒ‰ä»»æ„é”®è¿›è¡Œä¸‹ä¸€æ­¥\n");
 	while (getchar() != '\n');
 }
 
-/*Ë³Ğò±í²Ù×÷¼¯*/
-/*½¨¿Õ±í*/
+/*é¡ºåºè¡¨æ“ä½œé›†*/
+/*å»ºç©ºè¡¨*/
 void InitList(SkillList* list) {
 	list->length = 0;
 }
-/*Çó±í³¤*/
+/*æ±‚è¡¨é•¿*/
 int Length(SkillList list) {
 	return list.length;
 }
-/*ĞŞ¸ÄÊı¾İ*/
+/*ä¿®æ”¹æ•°æ®*/
 void updata(SkillList* list, int i, Skill x) {
 	list->data[i] = x;
 }
-/*ÒÑÖªÖµ²éÕÒÏÂ±ê*/
+/*å·²çŸ¥å€¼æŸ¥æ‰¾ä¸‹æ ‡*/
 int Locate(SkillList head, Skill x) {
 	int i = 0;
 	for (i;i < skillNum;i++) {
@@ -445,9 +834,12 @@ int Locate(SkillList head, Skill x) {
 	return -1;
 }
 
-/*×Ö·û´®×ª»»ÎªÕûĞÍ*/
-int ToInt(char ch[]) {
-	for (int i = 0;ch[i] != '\0';i++)					//Èô×Ö·û´®ÖĞº¬ÓĞ·ÇÊı×Ö£¬Ôò·µ»ØÖµ-1
+
+/*å­—ç¬¦ä¸²è½¬æ¢ä¸ºæ•´å‹*/
+int ToInt32(char ch[]) {
+	if (ch[0] == '\0')
+		return -1;
+	for (int i = 0;ch[i] != '\0';i++)					//è‹¥å­—ç¬¦ä¸²ä¸­å«æœ‰éæ•°å­—ï¼Œåˆ™è¿”å›å€¼-1
 		if (ch[i] < '0' || ch[i]>'9')
 			return -1;
 	int num = 0;
@@ -459,14 +851,14 @@ int ToInt(char ch[]) {
 	return num;
 }
 
-/*µ¥Á´±í²Ù×÷¼¯*/
-/*½¨¿Õ±í*/
+/*å•é“¾è¡¨æ“ä½œé›†*/
+/*å»ºç©ºè¡¨*/
 SkillLink InitListNode() {
 	SkillLink head = (SkillLink)malloc(sizeof(SkillNode));
 	head->next = NULL;
 	return head;
 }
-/*²åÈë*/
+/*æ’å…¥*/
 void InsertNode(SkillLink head, int i, Skill x) {
 	SkillLink s = (SkillLink)malloc(sizeof(SkillNode));
 	s->data = x;
@@ -478,23 +870,23 @@ void InsertNode(SkillLink head, int i, Skill x) {
 	s->next = head->next;
 	head->next = s;
 }
-/*Çó±í³¤*/
+/*æ±‚è¡¨é•¿*/
 int LengthNode(SkillLink head) {
 	int i = 0;
 	while (head = head->next)
 		i++;
 	return i;
 }
-/*±éÀú*/
+/*éå†*/
 void Traversal(SkillLink head) {
 	int i = 1;
 	while (head = head->next) {
-		printf("%d.%-6s\tÉËº¦£º%d\n", i, head->data.name, head->data.atk);
+		printf("%d.%-6s\tä¼¤å®³ï¼š%d\n", i, head->data.name, head->data.atk);
 		i++;
 	}
 	putchar(10);
 }
-/*É¾³ı*/
+/*åˆ é™¤*/
 SkillLink Delete(SkillLink head, int i) {
 	SkillLink s = (SkillLink)malloc(sizeof(SkillNode));
 	int j = 0;
@@ -507,18 +899,18 @@ SkillLink Delete(SkillLink head, int i) {
 	s->next = NULL;
 	return s;
 }
-/*ÒÑÖªÖµ²éÕÒĞòºÅ*/
+/*å·²çŸ¥å€¼æŸ¥æ‰¾åºå·*/
 int LocateNode(SkillLink head, Skill x) {
 	int i = 0;
-	while (head) {
+	while (head->next) {
 		head = head->next;
 		i++;
-		if (head->data.name == x.name)
+		if (head->data.ID == x.ID)
 			return i;
 	}
 	return -1;
 }
-/*ÒÑÖªĞòºÅ²éÕÒÖµ*/
+/*å·²çŸ¥åºå·æŸ¥æ‰¾å€¼*/
 SkillLink GetElem(SkillLink head, int i) {
 	int j = 0;
 	while (head && j < i) {
