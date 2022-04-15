@@ -35,18 +35,21 @@ typedef struct node {
 typedef struct {
 	char name[nameLength];		//药品名字 
 	int effect;					//药品效果，每吃一个加多少生命值 
+	int price;					//药品价格
 }Food;
 /*武器结构体定义*/
 typedef struct {
 	int ID;						//武器ID
 	char name[nameLength];		//武器名称
 	int ATK;					//武器攻击力
+	int price;					//武器价格
 }Weapon;
 /*盔甲结构体定义*/
 typedef struct {
 	int ID;						//盔甲ID
 	char name[nameLength];		//盔甲名称
 	int DEF;					//盔甲防御力
+	int price;					//盔甲价格
 }Armour;
 /*装备结构体定义*/
 typedef struct {
@@ -638,7 +641,11 @@ void UI_ArmourInfo(Entity player) {
 /*商店界面UI*/
 void UI_Shop(Entity* player) {
 	UI_ShopInfo(*player);
-	getchar();
+	int choose;
+	char choose[nameLength];
+	switch (choose) {
+
+	}
 }
 /*商店信息UI*/
 void UI_ShopInfo(Entity player) {
