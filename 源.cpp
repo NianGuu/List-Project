@@ -10,8 +10,8 @@
 
 #define skillNum 4					//实体技能个数
 #define nameLength 20				//名称长度
-#define skillLength 5				//总技能个数
-#define M 3							//总药品个数
+#define skillLength 20				//总技能个数
+#define M 7							//总药品个数
 #define weaponLength 3				//总武器个数
 #define armourLength 3				//总盔甲个数
 
@@ -139,6 +139,7 @@ SkillLink GetElem(SkillLink, int);				//已知序号查找值
 int difficulty = 1;		/*难度系数*/
 
 int main() {
+	system("mode con cols=140 lines=40 ");
 	Entity player;
 	char name[nameLength];
 	printf("+----------------------------+\n");
@@ -405,15 +406,15 @@ void UI_Jade(Entity player, Entity mob, int i) {
 void UI_fightSkill(Entity player) {
 	printf("你想要使用哪个技能？\n");
 	for (int i = 0;i < skillNum;i++)
-		printf("\n    %-2d.%-10s伤害：%-10d\n", i + 1, player.SkillList.data[i].name, player.SkillList.data[i].atk);
+		printf("\n    %-2d.%-20s伤害：%-10d\n", i + 1, player.SkillList.data[i].name, player.SkillList.data[i].atk);
 	printf("\n    输入0退出\n\n");
 }
 /*战斗中的药品界面*/
 void UI_fightFood(Entity player) {
 	printf("你想要使用哪个药品？\n");
 	for (int i = 0;i < M;i++)
-		printf("\n%-2d.%-20s数量：%-10d治疗量：%-10d\n", i + 1, player.Food[i].name, player.FoodNum[i], player.Food[i].effect);
-	printf("	输入0退出\n\n");
+		printf("\n    %-2d.%-20s数量：%-10d治疗量：%-10d\n", i + 1, player.Food[i].name, player.FoodNum[i], player.Food[i].effect);
+	printf("\n    输入0退出\n\n");
 }
 /*掉落物*/
 /*以怪物为参数计算掉落物*/
@@ -457,7 +458,7 @@ head:
 	printf("*-------------------------------------------------------*\n");
 	printf("*当前技能:                                              *\n");
 	for (int i = 0;i < skillNum;i++)
-		printf("*%d.%-10s                                           *\n", i + 1, player->SkillList.data[i].name);
+		printf("*%d.%-20s                                 *\n", i + 1, player->SkillList.data[i].name);
 	printf("*-------------------------------------------------------*\n");
 	printf("已拥有的技能:\n");
 	Traversal(player->OwnSkill);
@@ -998,10 +999,25 @@ Skill CatchSkill(int i) {
 	Skill skill_ERROR{ -1,"ERROR",114514 };
 	Skill skill_Null{ 0, "NULL",0 };
 	Skill skill_One{ 1,"撞击",10 };
-	Skill skill_Two{ 2,"大兜子",30 };
-	Skill skill_Three{ 3, "小亮の活",50 };
-	Skill skill_Four{ 4,"五十万",70 };
-	Skill skill_Five{ 5,"鸡汤",90 };
+	Skill skill_Two{ 2,"Emo",12 };
+	Skill skill_Three{ 3,"誓约之剑",15 };
+	Skill skill_Four{ 4,"天动万象",18 };
+	Skill skill_Five{ 5,"凤凰笑田鸡",20 };
+	Skill skill_Six{ 6,"好果汁",25 };
+	Skill skill_Seven{ 7,"挥拳",28 };
+	Skill skill_Eight{ 8,"挠痒",30 };
+	Skill skill_Nine{ 9,"电眼逼人",30 };
+	Skill skill_Ten{ 10,"大兜子",35 };
+	Skill skill_Eleven{ 11,"噩梦缠绕",40 };
+	Skill skill_Twelve{ 12,"熊猫出击",45 };
+	Skill skill_Thirteen{ 13,"小亮の活",50 };
+	Skill skill_Fourteen{ 14,"老坛酸菜",58 };
+	Skill skill_Fifteen{ 15,"乌鸦坐飞机",69 };
+	Skill skill_Sixteen{ 16,"五十万",77 };
+	Skill skill_Seventeen{ 17,"灵魂激流",88 };
+	Skill skill_Eighteen{ 18,"大悲咒",90 };
+	Skill skill_Nineteen{ 19,"鸡汤",100 };
+	Skill skill_Twenty{ 20,"沙城霸主烈火の刀！",120 };
 	/*函数返回*/
 	switch (i) {
 	case 0:return skill_Null;
@@ -1010,6 +1026,21 @@ Skill CatchSkill(int i) {
 	case 3:return skill_Three;
 	case 4:return skill_Four;
 	case 5:return skill_Five;
+	case 6:return skill_Six;
+	case 7:return skill_Seven;
+	case 8:return skill_Eight;
+	case 9:return skill_Nine;
+	case 10:return skill_Ten;
+	case 11:return skill_Eleven;
+	case 12:return skill_Twelve;
+	case 13:return skill_Thirteen;
+	case 14:return skill_Fourteen;
+	case 15:return skill_Fifteen;
+	case 16:return skill_Sixteen;
+	case 17:return skill_Seventeen;
+	case 18:return skill_Eighteen;
+	case 19:return skill_Nineteen;
+	case 20:return skill_Twenty;
 	default:return skill_ERROR;
 	}
 }
@@ -1019,12 +1050,20 @@ Food CatchFood(int i) {
 	Food food_ERROR{ "ERROR",-114514,-1 };
 	Food food_One{ "金疮药",200 ,100 };
 	Food food_Two{ "大力丸",400 ,200 };
-	Food food_Three{ "续命丸",600 ,400 };
+	Food food_Three{ "安神丹",600 ,400 };
+	Food food_Four{ "人参丸",800 ,600 };
+	Food food_Five{ "玉露丸",1000 ,800 };
+	Food food_Six{ "回魂丹",1500 ,1200 };
+	Food food_Seven{ "续命丸",2000 ,1500 };
 	/*药品返回*/
 	switch (i) {
 	case 1:return food_One;
 	case 2:return food_Two;
 	case 3:return food_Three;
+	case 4:return food_Four;
+	case 5:return food_Five;
+	case 6:return food_Six;
+	case 7:return food_Seven;
 	default:return food_ERROR;
 	}
 }
