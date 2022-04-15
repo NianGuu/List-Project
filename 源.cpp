@@ -82,10 +82,16 @@ int UI_UnloadSkill(Entity*);									/*卸下技能UI*/
 int UI_LoadSkill(Entity*);										/*装载技能UI*/
 
 void UI_Equi(Entity*);											/*装备界面UI*/
+void UI_EquiInfo(Entity);										/*装备信息UI*/
+void UI_WeaponInfo(Entity);										/*武器信息UI*/
+void UI_ArmourInfo(Entity);										/*盔甲信息UI*/
 
 void UI_Shop(Entity*);											/*商店界面UI*/
 
 void UI_Food(Entity*);											/*药品界面UI*/
+
+int LoadWeapon(Entity*, int);									/*装备武器*/
+int LoadArmour(Entity*, int);									/*装备盔甲*/
 
 Skill CatchSkill(int i);										/*调用技能*/
 Food CatchFood(int i);											/*调用药品*/
@@ -102,7 +108,7 @@ Entity SetMob();												/*随机生成怪物*/
 int UnloadSkill(Entity*, int);									/*卸下技能*/
 int LoadSkill(Entity*, int);									/*装配技能*/
 
-int ToInt(char[]);									//字符串类型转换为整型
+int ToInt32(char[]);									//字符串类型转换为整型
 
 /*顺序表操作集*/
 void InitList(SkillList*);							//建空表
@@ -189,10 +195,10 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	}
 	entity->Equi.Armour = CatchArmour(0);		//初始化盔甲
 	for (int i = 0;i < armourLength;i++)		//初始化盔甲数量
-		entity->ArmourNum[i] = 0;
+		entity->ArmourNum[i] = 1;
 	entity->Equi.Weapon = CatchWeapon(0);		//初始化武器
 	for (int i = 0;i < weaponLength;i++)		//初始化武器数量
-		entity->WeaponNum[i] = 0;
+		entity->WeaponNum[i] = 1;
 	entity->Gold = 0;							//初始化金币
 	entity->ATK = 0;							//初始化攻击力
 	entity->DEF = 0;							//初始化防御力
@@ -255,7 +261,7 @@ int UI_fighting(Entity player, Entity mob) {
 		printf("    1.技能\n");
 		printf("    2.药品\n");
 		printf("    0.逃跑\n");
-		choose = ToInt(gets_s(chooseChar));
+		choose = ToInt32(gets_s(chooseChar));
 		if (choose == 1) {					//选择技能
 		branch1:
 			UI_Jade(player, mob, i);
@@ -283,7 +289,7 @@ int UI_fighting(Entity player, Entity mob) {
 			Sleep(200);
 			goto head;
 		}
-		choose = ToInt(gets_s(chooseChar));
+		choose = ToInt32(gets_s(chooseChar));
 		if (choose == 0)
 			goto head;
 		else
@@ -447,7 +453,7 @@ head:
 	printf("\n已拥有的技能：\n");
 	Traversal(player->OwnSkill);
 	printf("\n请选择你要卸下的技能(1-4)\n输入0退出\n");
-	num = ToInt(gets_s(i));
+	num = ToInt32(gets_s(i));
 	if (num == 0)
 		return 0;
 	if (num == -1) {
@@ -476,7 +482,7 @@ head:
 	printf("\n已拥有的技能：\n");
 	Traversal(player->OwnSkill);
 	printf("请输入你要装载的技能：\n输入0退出\n");
-	num = ToInt(gets_s(i));
+	num = ToInt32(gets_s(i));
 	if (num == 0)
 		return 0;
 	if (num == -1) {
@@ -506,14 +512,137 @@ void UI_Food(Entity* player) {
 
 /*装备界面UI*/
 void UI_Equi(Entity* player) {
+	char chooseChar[nameLength];
+	int choose;
+head:
+	UI_EquiInfo(*player);
+	printf("\n你要做什么？\n");
+	printf("1.  武器\n");
+	printf("2.  盔甲\n");
+	choose = ToInt32(gets_s(chooseChar));
+	switch (choose) {
+	case 1: {
+	Weaponhead:
+		while (1) {
+			UI_EquiInfo(*player);
+			UI_WeaponInfo(*player);
+			printf("\n请输入你要装备的武器：\n输入0可返回\n");
+			choose = ToInt32(gets_s(chooseChar));
+			if (choose > 0 && choose < weaponLength + 1)break;
+			else if (choose == -1) {
+				printf("\n请输入正确的选项！\n");
+				Sleep(300);
+				continue;
+			}
+			else goto head;
+		}
+		switch (LoadWeapon(player, choose)) {
+		case -2: {
+			printf("\n你没有该武器！\n");
+			Sleep(300);
+			goto Weaponhead;
+		}
+		default: {
+			printf("\n已成功装备%s!\n", CatchWeapon(choose).name);
+			Sleep(300);
+			goto head;
+		}
+		}
+	};break;
+	case 2: {
+	Armourhead:
+		while (1) {
+			UI_EquiInfo(*player);
+			UI_ArmourInfo(*player);
+			printf("\n请输入你要装备的盔甲：\n输入0可返回\n");
+			choose = ToInt32(gets_s(chooseChar));
+			if (choose > 0 && choose < weaponLength + 1)break;
+			else if (choose == -1) {
+				printf("\n请输入正确的选项！\n");
+				Sleep(300);
+				continue;
+			}
+			else goto head;
+		}
+		switch (LoadArmour(player, choose)) {
+		case -2: {
+			printf("\n你没有该盔甲！\n");
+			Sleep(300);
+			goto Weaponhead;
+		}
+		default: {
+			printf("\n已成功装备%s!\n", CatchArmour(choose).name);
+			Sleep(300);
+			goto head;
+		}
+		}
+	};break;
+	default:printf("\n请输入正确的选项！\n");goto head;
+	}
+}
+/*装备信息UI*/
+void UI_EquiInfo(Entity player) {
 	system("CLS");
-	printf("%s\n等级：%d\n金币：%d\n", player->name, difficulty,player->Gold);
+	printf("%s\n等级：%d\n金币：%d\n", player.name, difficulty, player.Gold);
 	printf("——————\n");
+	printf("武器：%-20s攻击力：%-10d\n", player.Equi.Weapon.name, player.Equi.Weapon.ATK);
+	printf("盔甲：%-20s防御力：%-10d\n", player.Equi.Armour.name, player.Equi.Armour.DEF);
+}
+/*武器信息UI*/
+void UI_WeaponInfo(Entity player) {
+	for (int i = 0;i < weaponLength;i++)
+		printf("\n%d.%-20s数量：%-10d攻击力：%-10d\n", i + 1, CatchWeapon(i + 1).name, player.WeaponNum[i], CatchWeapon(i + 1).ATK);
+}
+/*盔甲信息UI*/
+void UI_ArmourInfo(Entity player) {
+	for (int i = 0;i < armourLength;i++)
+		printf("\n%d.%-20s数量：%-10d防御力：%-10d\n", i + 1, CatchArmour(i + 1).name, player.ArmourNum[i], CatchArmour(i + 1).DEF);
 }
 
 /*商店界面UI*/
 void UI_Shop(Entity* player) {
 
+}
+
+/*装备武器*/
+/*数量不足则返回-2*/
+int LoadWeapon(Entity* player, int i) {
+	if (player->WeaponNum[i - 1] == 0)
+		return -2;
+	if (player->Equi.Weapon.ID != 0) {
+		int inum;
+		for (int j = 0;j < weaponLength;j++)
+			if (player->Equi.Weapon.ID == CatchWeapon(j + 1).ID)
+				inum = j;
+		player->Equi.Weapon = CatchWeapon(i);
+		player->WeaponNum[i - 1]--;
+		player->WeaponNum[inum]++;
+		return 0;
+	}
+	else {
+		player->Equi.Weapon = CatchWeapon(i);
+		player->WeaponNum[i - 1]--;
+		return 0;
+	}
+}
+/*装备盔甲*/
+/*数量不足则返回-2*/
+int LoadArmour(Entity* player, int i) {
+	if (player->ArmourNum[i - 1] == 0)
+		return -2;
+	if (player->Equi.Armour.ID != 0) {
+		int inum;
+		for (int j = 0;j < armourLength;j++)
+			if (player->Equi.Armour.ID == CatchArmour(j + 1).ID)
+				inum = j;
+		player->Equi.Armour = CatchArmour(i);
+		player->ArmourNum[i - 1]--;
+		player->ArmourNum[inum]++;
+		return 0;
+	}
+	player->Equi.Armour = CatchArmour(i);
+	player->ArmourNum[i - 1]--;
+	return 0;
 }
 
 /*获取技能*/
@@ -673,7 +802,7 @@ int Locate(SkillList head, Skill x) {
 
 
 /*字符串转换为整型*/
-int ToInt(char ch[]) {
+int ToInt32(char ch[]) {
 	if (ch[0] == '\0')
 		return -1;
 	for (int i = 0;ch[i] != '\0';i++)					//若字符串中含有非数字，则返回值-1
