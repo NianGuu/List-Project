@@ -216,8 +216,8 @@ void SetEntity(Entity* entity, int i, char name[nameLength]) {
 	for (int i = 0;i < weaponLength;i++)		//初始化武器数量
 		entity->WeaponNum[i] = 0;
 	entity->Gold = 0;							//初始化金币
-	entity->ATK = 0;							//初始化攻击力
-	entity->DEF = 0;							//初始化防御力
+	entity->ATK = 10;							//初始化攻击力
+	entity->DEF = 10;							//初始化防御力
 }
 
 /*战斗界面UI*/
@@ -252,6 +252,8 @@ head:
 		printf("|	战斗失败！	|\n");
 		printf("+-----------------------+\n");
 		difficulty--;
+		if (difficulty < 1)
+			difficulty = 1;
 	};break;
 	case 1: {			//战斗胜利
 		printf("\n  o(^▽^)o\n");
