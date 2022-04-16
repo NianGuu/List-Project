@@ -1126,7 +1126,7 @@ Armour CatchArmour(int i) {
 	Armour armour_ERROR{ -1,"ERROR",-114514,-1 };
 	Armour armour_Null{ 0,"NULL",0 ,0 };
 	Armour armour_One{ 1,"孙悟空的戏法",10,100 };
-	Armour armour_Two{ 2,"尹娜的幻身",20 ,200 };
+	Armour armour_Two{ 2,"尹娜的真言",20 ,200 };
 	Armour armour_Three{ 3,"御宅花织",30,300 };
 	Armour armour_Four{ 4,"豆浆烩面！",40,400 };
 	Armour armour_Five{ 5,"桥洞底下盖小被",50,500 };
