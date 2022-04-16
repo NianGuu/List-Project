@@ -139,7 +139,7 @@ SkillLink GetElem(SkillLink, int);				//已知序号查找值
 int difficulty = 1;		/*难度系数*/
 
 int main() {
-	system("mode con cols=140 lines=40 ");
+	system("mode con cols=140 lines=42 ");
 	Entity player;
 	char name[nameLength];
 	printf("**************************************\n");
@@ -174,7 +174,7 @@ int main() {
 		printf("*                                                       *\n");
 		printf("*	名称:%-10s	等级:%-2d		金币:%-10d *\n", player.name, difficulty, player.Gold);
 		printf("*                                                       *\n");
-		printf("*       生命值：%-8d攻击力：%-8d防御力：%-8d*\n", player.HP, player.ATK+player.Equi.Weapon.ATK, player.DEF+player.Equi.Armour.DEF);
+		printf("*       生命值：%-8d攻击力：%-8d防御力：%-8d*\n", player.HP, player.ATK + player.Equi.Weapon.ATK, player.DEF + player.Equi.Armour.DEF);
 		printf("*                                                       *\n");
 		printf("*	操作列表:                                       *\n");
 		printf("*                                                       *\n");
@@ -284,7 +284,7 @@ head:
 		printf("*                                     *\n");
 		printf("*             *恭喜,你赢了*           *\n");
 		printf("***************************************\n");
-		printf("\n  o(^▽^)o\n");		
+		printf("\n  o(^▽^)o\n");
 		difficulty++;
 		UI_gain(player, mob);
 	};break;
@@ -488,8 +488,8 @@ head:
 	for (int i = 0;i < skillNum;i++)
 		printf("*%d.%-20s                                 *\n", i + 1, player->SkillList.data[i].name);
 	printf("*-------------------------------------------------------*\n");
-	printf("\n已拥有的技能:\n\n");
-	Traversal(player->OwnSkill);
+	/*printf("\n已拥有的技能:\n\n");
+	Traversal(player->OwnSkill);*/
 	printf("\n请输入操作：\n");
 	printf("\n1.查看未拥有技能\n");
 	printf("\n2.卸下技能\n");
@@ -1221,7 +1221,7 @@ int LengthNode(SkillLink head) {
 void Traversal(SkillLink head) {
 	int i = 1;
 	while (head = head->next) {
-		printf("%d.%-20s\t伤害：%d\n", i, head->data.name, head->data.atk);
+		printf("\n%d.%-20s\t伤害：%d\n", i, head->data.name, head->data.atk);
 		i++;
 	}
 	putchar(10);
